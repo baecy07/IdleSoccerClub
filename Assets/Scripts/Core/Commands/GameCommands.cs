@@ -59,6 +59,13 @@ namespace IdleSoccerClubMVP.Core.Commands
     }
 
     [Serializable]
+    public struct SetSquadPlayerCommand
+    {
+        public int slotIndex;
+        public string playerId;
+    }
+
+    [Serializable]
     public sealed class RewardGrant
     {
         public int gold;

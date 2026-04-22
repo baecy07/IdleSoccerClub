@@ -436,17 +436,72 @@ namespace IdleSoccerClubMVP.Services.Local
 
         public bool AutoAssignBestSquad(out string message)
         {
-            List<PlayerUnitData> sorted = new List<PlayerUnitData>();
+            List<string> slotBlueprint = BuildSlotBlueprint(State.team.selectedFormationId);
+            List<PlayerUnitData> availablePlayers = new List<PlayerUnitData>();
             for (int index = 0; index < State.ownedPlayers.Count; index++)
             {
-                sorted.Add(configProvider.BuildPlayerUnitData(State.ownedPlayers[index]));
+                availablePlayers.Add(configProvider.BuildPlayerUnitData(State.ownedPlayers[index]));
             }
 
-            sorted = sorted.OrderByDescending(player => player.computedPower).Take(11).ToList();
-            State.team.squadPlayerIds = sorted.Select(player => player.id).ToList();
+            List<string> assignedIds = new List<string>();
+            for (int slotIndex = 0; slotIndex < slotBlueprint.Count; slotIndex++)
+            {
+                string expectedPosition = slotBlueprint[slotIndex];
+                PlayerUnitData bestMatch = availablePlayers
+                    .Where(player => player.position == expectedPosition && !assignedIds.Contains(player.id))
+                    .OrderByDescending(player => player.computedPower)
+                    .FirstOrDefault();
+
+                if (bestMatch == null)
+                {
+                    bestMatch = availablePlayers
+                        .Where(player => !assignedIds.Contains(player.id))
+                        .OrderByDescending(player => player.computedPower)
+                        .FirstOrDefault();
+                }
+
+                if (bestMatch != null)
+                {
+                    assignedIds.Add(bestMatch.id);
+                }
+            }
+
+            State.team.squadPlayerIds = assignedIds;
             TeamPowerSystem.Recalculate(State, configProvider);
             message = string.Format("Best XI auto-assigned ({0} players)", State.team.squadPlayerIds.Count);
             EmitLog("AutoAssignBestSquad", message);
+            SaveAndRefresh();
+            return true;
+        }
+
+        public bool SetSquadPlayer(SetSquadPlayerCommand command, out string message)
+        {
+            OwnedPlayerState player = State.ownedPlayers.Find(item => item.instanceId == command.playerId);
+            if (player == null)
+            {
+                message = "Selected player is not owned.";
+                return false;
+            }
+
+            EnsureSquadSlotCount(11);
+            if (command.slotIndex < 0 || command.slotIndex >= State.team.squadPlayerIds.Count)
+            {
+                message = "Invalid squad slot.";
+                return false;
+            }
+
+            int existingIndex = State.team.squadPlayerIds.FindIndex(item => item == command.playerId);
+            string currentOccupant = State.team.squadPlayerIds[command.slotIndex];
+
+            if (existingIndex >= 0 && existingIndex != command.slotIndex)
+            {
+                State.team.squadPlayerIds[existingIndex] = currentOccupant;
+            }
+
+            State.team.squadPlayerIds[command.slotIndex] = command.playerId;
+            TeamPowerSystem.Recalculate(State, configProvider);
+            message = string.Format("{0} assigned to squad slot {1}", command.playerId, command.slotIndex + 1);
+            EmitLog("SetSquadPlayer", message);
             SaveAndRefresh();
             return true;
         }
@@ -615,6 +670,29 @@ namespace IdleSoccerClubMVP.Services.Local
             TeamPowerSystem.Recalculate(state, configProvider);
             return state;
         }
+
+        private void EnsureSquadSlotCount(int count)
+        {
+            while (State.team.squadPlayerIds.Count < count)
+            {
+                State.team.squadPlayerIds.Add(string.Empty);
+            }
+        }
+
+        private static List<string> BuildSlotBlueprint(string formationId)
+        {
+            if (formationId == "4-3-3")
+            {
+                return new List<string> { "GK", "DF", "DF", "DF", "DF", "MF", "MF", "MF", "FW", "FW", "FW" };
+            }
+
+            if (formationId == "4-2-3-1")
+            {
+                return new List<string> { "GK", "DF", "DF", "DF", "DF", "MF", "MF", "MF", "MF", "MF", "FW" };
+            }
+
+            return new List<string> { "GK", "DF", "DF", "DF", "DF", "MF", "MF", "MF", "MF", "FW", "FW" };
+        }
     }
 
     public abstract class LocalServiceBase : IStateBoundService
@@ -715,6 +793,11 @@ namespace IdleSoccerClubMVP.Services.Local
         public bool AutoAssignBestSquad(out string message)
         {
             return session.AutoAssignBestSquad(out message);
+        }
+
+        public bool SetSquadPlayer(SetSquadPlayerCommand command, out string message)
+        {
+            return session.SetSquadPlayer(command, out message);
         }
     }
 

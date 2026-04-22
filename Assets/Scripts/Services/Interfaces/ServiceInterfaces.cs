@@ -32,6 +32,7 @@ namespace IdleSoccerClubMVP.Services.Interfaces
         bool PromotePlayerStar(PromotePlayerStarCommand command, out string message);
         bool UpgradeFacility(UpgradeFacilityCommand command, out string message);
         bool AutoAssignBestSquad(out string message);
+        bool SetSquadPlayer(SetSquadPlayerCommand command, out string message);
     }
 
     public interface IScoutService : IStateBoundService
