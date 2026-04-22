@@ -1,0 +1,28 @@
+{
+  "scoutLevels": [
+    { "level": 1, "weights": [ { "rarityId": "common", "weight": 7200 }, { "rarityId": "notable", "weight": 2000 }, { "rarityId": "top_class", "weight": 650 }, { "rarityId": "world_class", "weight": 130 }, { "rarityId": "legendary", "weight": 20 } ] },
+    { "level": 2, "weights": [ { "rarityId": "common", "weight": 7000 }, { "rarityId": "notable", "weight": 2120 }, { "rarityId": "top_class", "weight": 700 }, { "rarityId": "world_class", "weight": 150 }, { "rarityId": "legendary", "weight": 30 } ] },
+    { "level": 3, "weights": [ { "rarityId": "common", "weight": 6760 }, { "rarityId": "notable", "weight": 2260 }, { "rarityId": "top_class", "weight": 760 }, { "rarityId": "world_class", "weight": 180 }, { "rarityId": "legendary", "weight": 40 } ] },
+    { "level": 4, "weights": [ { "rarityId": "common", "weight": 6520 }, { "rarityId": "notable", "weight": 2400 }, { "rarityId": "top_class", "weight": 830 }, { "rarityId": "world_class", "weight": 210 }, { "rarityId": "legendary", "weight": 40 } ] },
+    { "level": 5, "weights": [ { "rarityId": "common", "weight": 6300 }, { "rarityId": "notable", "weight": 2500 }, { "rarityId": "top_class", "weight": 900 }, { "rarityId": "world_class", "weight": 240 }, { "rarityId": "legendary", "weight": 60 } ] },
+    { "level": 6, "weights": [ { "rarityId": "common", "weight": 6040 }, { "rarityId": "notable", "weight": 2660 }, { "rarityId": "top_class", "weight": 980 }, { "rarityId": "world_class", "weight": 260 }, { "rarityId": "legendary", "weight": 60 } ] },
+    { "level": 7, "weights": [ { "rarityId": "common", "weight": 5760 }, { "rarityId": "notable", "weight": 2820 }, { "rarityId": "top_class", "weight": 1050 }, { "rarityId": "world_class", "weight": 300 }, { "rarityId": "legendary", "weight": 70 } ] },
+    { "level": 8, "weights": [ { "rarityId": "common", "weight": 5480 }, { "rarityId": "notable", "weight": 2960 }, { "rarityId": "top_class", "weight": 1160 }, { "rarityId": "world_class", "weight": 320 }, { "rarityId": "legendary", "weight": 80 } ] },
+    { "level": 9, "weights": [ { "rarityId": "common", "weight": 5180 }, { "rarityId": "notable", "weight": 3120 }, { "rarityId": "top_class", "weight": 1260 }, { "rarityId": "world_class", "weight": 350 }, { "rarityId": "legendary", "weight": 90 } ] },
+    { "level": 10, "weights": [ { "rarityId": "common", "weight": 4880 }, { "rarityId": "notable", "weight": 3260 }, { "rarityId": "top_class", "weight": 1360 }, { "rarityId": "world_class", "weight": 390 }, { "rarityId": "legendary", "weight": 110 } ] }
+  ],
+  "levelUpThresholds": [
+    { "level": 1, "requiredTotalScouts": 0 },
+    { "level": 2, "requiredTotalScouts": 5 },
+    { "level": 3, "requiredTotalScouts": 12 },
+    { "level": 4, "requiredTotalScouts": 22 },
+    { "level": 5, "requiredTotalScouts": 35 },
+    { "level": 6, "requiredTotalScouts": 50 },
+    { "level": 7, "requiredTotalScouts": 70 },
+    { "level": 8, "requiredTotalScouts": 92 },
+    { "level": 9, "requiredTotalScouts": 118 },
+    { "level": 10, "requiredTotalScouts": 150 }
+  ],
+  "singleScoutCost": 3,
+  "tenScoutCost": 27
+}

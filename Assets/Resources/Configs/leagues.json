@@ -1,0 +1,34 @@
+{
+  "leagues": [
+    {
+      "id": "league_09",
+      "displayName": "9부 리그",
+      "stages": [
+        { "id": "league_09_stage_01", "displayName": "9부 1R", "recommendedPower": 620, "rewardGold": 220, "rewardFacilityMaterial": 18, "rewardScoutCurrency": 2 },
+        { "id": "league_09_stage_02", "displayName": "9부 2R", "recommendedPower": 700, "rewardGold": 240, "rewardFacilityMaterial": 20, "rewardScoutCurrency": 2 },
+        { "id": "league_09_stage_03", "displayName": "9부 3R", "recommendedPower": 770, "rewardGold": 260, "rewardFacilityMaterial": 22, "rewardScoutCurrency": 3 },
+        { "id": "league_09_stage_04", "displayName": "9부 플레이오프", "recommendedPower": 850, "rewardGold": 320, "rewardFacilityMaterial": 28, "rewardScoutCurrency": 4 }
+      ]
+    },
+    {
+      "id": "league_08",
+      "displayName": "8부 리그",
+      "stages": [
+        { "id": "league_08_stage_01", "displayName": "8부 1R", "recommendedPower": 930, "rewardGold": 360, "rewardFacilityMaterial": 30, "rewardScoutCurrency": 4 },
+        { "id": "league_08_stage_02", "displayName": "8부 2R", "recommendedPower": 1020, "rewardGold": 390, "rewardFacilityMaterial": 34, "rewardScoutCurrency": 5 },
+        { "id": "league_08_stage_03", "displayName": "8부 3R", "recommendedPower": 1120, "rewardGold": 420, "rewardFacilityMaterial": 38, "rewardScoutCurrency": 5 },
+        { "id": "league_08_stage_04", "displayName": "8부 플레이오프", "recommendedPower": 1230, "rewardGold": 480, "rewardFacilityMaterial": 44, "rewardScoutCurrency": 6 }
+      ]
+    },
+    {
+      "id": "league_07",
+      "displayName": "7부 리그",
+      "stages": [
+        { "id": "league_07_stage_01", "displayName": "7부 1R", "recommendedPower": 1340, "rewardGold": 520, "rewardFacilityMaterial": 48, "rewardScoutCurrency": 6 },
+        { "id": "league_07_stage_02", "displayName": "7부 2R", "recommendedPower": 1460, "rewardGold": 570, "rewardFacilityMaterial": 52, "rewardScoutCurrency": 7 },
+        { "id": "league_07_stage_03", "displayName": "7부 3R", "recommendedPower": 1580, "rewardGold": 620, "rewardFacilityMaterial": 56, "rewardScoutCurrency": 7 },
+        { "id": "league_07_stage_04", "displayName": "7부 플레이오프", "recommendedPower": 1720, "rewardGold": 700, "rewardFacilityMaterial": 64, "rewardScoutCurrency": 8 }
+      ]
+    }
+  ]
+}
