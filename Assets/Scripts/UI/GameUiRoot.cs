@@ -157,7 +157,7 @@ namespace IdleSoccerClubMVP.UI
             goldValueText = CreateResourceChip(rowOne.transform, "Gold");
             premiumValueText = CreateResourceChip(rowOne.transform, "Gem");
             scoutTicketValueText = CreateResourceChip(rowTwo.transform, "Scout");
-            coreResourceValueText = CreateResourceChip(rowTwo.transform, "Core");
+            coreResourceValueText = CreateResourceChip(rowTwo.transform, "XP");
 
             GameObject rightColumn = UiFactory.CreateVerticalPanel("UtilityColumn", topBar.transform, new Color(0f, 0f, 0f, 0f), 0, 8f);
             UiFactory.SetLayoutElement(rightColumn, preferredWidth: 320f, minWidth: 320f);
@@ -779,6 +779,16 @@ namespace IdleSoccerClubMVP.UI
             builder.AppendLine(string.Format("Possession {0}%", result.possessionPercent));
             builder.AppendLine(string.Format("Shots {0} / On target {1}", result.shots, result.shotsOnTarget));
             builder.AppendLine(string.Format("Top scorers: {0}", result.topScorerNames));
+            builder.AppendLine(string.Format("MOM: {0}", string.IsNullOrEmpty(result.momPlayerId) ? "-" : result.momPlayerId));
+            builder.AppendLine(string.Format("Team line: ATK {0} / DEF {1} / CTRL {2}",
+                NumberNotationFormatter.FormatForUi(result.teamAttack),
+                NumberNotationFormatter.FormatForUi(result.teamDefense),
+                NumberNotationFormatter.FormatForUi(result.teamControl)));
+            builder.AppendLine(string.Format("Opponent line: ATK {0} / DEF {1} / CTRL {2}",
+                NumberNotationFormatter.FormatForUi(result.opponentAttack),
+                NumberNotationFormatter.FormatForUi(result.opponentDefense),
+                NumberNotationFormatter.FormatForUi(result.opponentControl)));
+            builder.AppendLine(string.Format("Match advantage {0:F3}", result.matchAdvantage));
             builder.AppendLine();
             builder.AppendLine(result.debugBreakdown);
 
@@ -821,11 +831,17 @@ namespace IdleSoccerClubMVP.UI
             builder.AppendLine(string.Format("{0} [{1}]  {2}", player.name, player.position, player.rarity));
             builder.AppendLine(string.Format("Level {0}/{1} | Star {2}", player.level, levelCap, player.star));
             builder.AppendLine(string.Format("Power {0}", NumberNotationFormatter.FormatForUi(player.computedPower)));
+            builder.AppendLine(string.Format("Combat line: ATK {0} / DEF {1} / CTRL {2}",
+                NumberNotationFormatter.FormatForUi(player.attackContribution),
+                NumberNotationFormatter.FormatForUi(player.defenseContribution),
+                NumberNotationFormatter.FormatForUi(player.controlContribution)));
             builder.AppendLine(string.Format("Club {0} | Nation {1}", player.club, player.nationality));
             builder.AppendLine(string.Format("Preferred formation {0}", player.preferredFormation));
             builder.AppendLine(string.Format("Traits {0}", player.traits.Count == 0 ? "-" : string.Join(", ", player.traits.ToArray())));
             builder.AppendLine();
-            builder.AppendLine(string.Format("Next level cost: {0}", nextLevelCost != null ? NumberNotationFormatter.FormatForUi(nextLevelCost.goldCost) : "N/A"));
+            builder.AppendLine(string.Format("Next level cost: {0}", nextLevelCost != null
+                ? string.Format("{0} gold + {1} XP", NumberNotationFormatter.FormatForUi(nextLevelCost.goldCost), NumberNotationFormatter.FormatForUi(nextLevelCost.playerExpCost))
+                : "N/A"));
             builder.AppendLine(string.Format("Promotion need: {0}", nextPromotionRule != null ? nextPromotionRule.requiredDuplicates + " dup / " + NumberNotationFormatter.FormatForUi(nextPromotionRule.goldCost) + " gold" : "Max"));
             builder.AppendLine(string.Format("Owned duplicate shards: {0}", player.duplicateShardCount));
 
@@ -1014,6 +1030,7 @@ namespace IdleSoccerClubMVP.UI
             FacilityBalanceDefinition definition = configProvider.GetFacility(facilityId);
             int level = GetFacilityLevel(facilityId);
             int nextCost = level < definition.levels.Length ? definition.levels[level].upgradeCost : 0;
+            int goldCost = nextCost * 3;
 
             return new FacilityCardState(
                 facilityId,
@@ -1021,9 +1038,9 @@ namespace IdleSoccerClubMVP.UI
                 level,
                 BuildFacilityEffectText(facilityId, level),
                 level >= definition.levels.Length ? "Max level reached" : BuildFacilityEffectText(facilityId, level + 1),
-                level >= definition.levels.Length ? "MAX" : nextCost.ToString("N0"),
+                level >= definition.levels.Length ? "MAX" : string.Format("{0} facility + {1} gold", nextCost.ToString("N0"), goldCost.ToString("N0")),
                 GetFacilityHighlight(facilityId),
-                level < definition.levels.Length && progressService.State.economy.facilityMaterial >= nextCost);
+                level < definition.levels.Length && progressService.State.economy.facilityMaterial >= nextCost && progressService.State.economy.gold >= goldCost);
         }
 
         private int GetFacilityLevel(string facilityId)
@@ -1045,7 +1062,7 @@ namespace IdleSoccerClubMVP.UI
                 case GameConstants.ScoutCenterId:
                     return string.Format("Scout center candidates {0}", configProvider.GetScoutCenterCandidateCount(level));
                 case GameConstants.ClubHouseId:
-                    return string.Format("Idle and offline bonus +{0:P0}", GetClubHouseBonusAtLevel(level));
+                    return string.Format("Idle bonus +{0:P0} / Offline cap {1}m", GetClubHouseBonusAtLevel(level), GetClubHouseOfflineCapAtLevel(level));
                 case GameConstants.TacticLabId:
                     return string.Format("Formation/tactic unlock slots {0}", configProvider.GetTacticLabUnlockCount(level));
                 default:
@@ -1058,6 +1075,20 @@ namespace IdleSoccerClubMVP.UI
             FacilityBalanceDefinition definition = configProvider.GetFacility(GameConstants.ClubHouseId);
             int index = Mathf.Clamp(level - 1, 0, definition.levels.Length - 1);
             return definition.levels[index].primaryValue;
+        }
+
+        private int GetClubHouseOfflineCapAtLevel(int level)
+        {
+            FacilityBalanceDefinition definition = configProvider.GetFacility(GameConstants.ClubHouseId);
+            int index = Mathf.Clamp(level - 1, 0, definition.levels.Length - 1);
+            int configured = Mathf.RoundToInt(definition.levels[index].secondaryValue);
+            if (configured > 0)
+            {
+                return configured;
+            }
+
+            return configProvider.Progression.idleBalance.baseOfflineMaxMinutes
+                + Mathf.Max(0, level - 1) * configProvider.Progression.idleBalance.clubHouseOfflineMinutesPerLevel;
         }
 
         private string GetFacilityTitle(string facilityId)
@@ -1284,7 +1315,9 @@ namespace IdleSoccerClubMVP.UI
             {
                 FacilityBalanceDefinition definition = configProvider.GetFacility(facilityIds[index]);
                 int level = GetFacilityLevel(facilityIds[index]);
-                if (level < definition.levels.Length && state.economy.facilityMaterial >= definition.levels[level].upgradeCost)
+                int materialCost = level < definition.levels.Length ? definition.levels[level].upgradeCost : 0;
+                int goldCost = materialCost * 3;
+                if (level < definition.levels.Length && state.economy.facilityMaterial >= materialCost && state.economy.gold >= goldCost)
                 {
                     return true;
                 }
@@ -1301,7 +1334,9 @@ namespace IdleSoccerClubMVP.UI
             {
                 FacilityBalanceDefinition definition = configProvider.GetFacility(facilityIds[index]);
                 int level = GetFacilityLevel(facilityIds[index]);
-                if (level < definition.levels.Length && progressService.State.economy.facilityMaterial >= definition.levels[level].upgradeCost)
+                int materialCost = level < definition.levels.Length ? definition.levels[level].upgradeCost : 0;
+                int goldCost = materialCost * 3;
+                if (level < definition.levels.Length && progressService.State.economy.facilityMaterial >= materialCost && progressService.State.economy.gold >= goldCost)
                 {
                     count++;
                 }
@@ -1321,6 +1356,7 @@ namespace IdleSoccerClubMVP.UI
                 StarPromotionRuleDefinition starRule = configProvider.GetStarPromotionRule(player.star);
 
                 bool canLevel = player.level < levelCap && levelCost != null && progressService.State.economy.gold >= levelCost.goldCost;
+                canLevel = canLevel && progressService.State.economy.playerExp >= levelCost.playerExpCost;
                 bool canPromote = player.star < 5 && starRule != null && progressService.State.economy.gold >= starRule.goldCost && player.duplicateShardCount >= starRule.requiredDuplicates;
                 if (canLevel || canPromote)
                 {

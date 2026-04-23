@@ -53,9 +53,9 @@ namespace IdleSoccerClubMVP.UI.ViewData
         {
             return new HudResourceViewData(
                 "Gold " + EconomyValue.FromInt(state.economy.gold).ToUiString(),
-                "Gem -",
+                "Gem " + EconomyValue.FromInt(state.economy.premiumCurrency).ToUiString(false),
                 "Scout " + EconomyValue.FromInt(state.economy.scoutCurrency).ToUiString(false),
-                "Core " + EconomyValue.FromInt(state.economy.facilityMaterial).ToUiString());
+                "XP " + EconomyValue.FromInt(state.economy.playerExp).ToUiString());
         }
 
         public static HomeScreenViewData BuildHome(GameState state, LeagueStageDefinition currentStage, float goldPerMinute, string quickHint, string teamColorSummary)
@@ -65,10 +65,15 @@ namespace IdleSoccerClubMVP.UI.ViewData
             statusBuilder.AppendLine(string.Format("Current loop: {0}", state.league.loopStateId));
             statusBuilder.AppendLine(string.Format("Recommended power: {0}", NumberNotationFormatter.FormatForUi(currentStage != null ? currentStage.recommendedPower : 0)));
             statusBuilder.AppendLine(string.Format("Team power: {0}", NumberNotationFormatter.FormatForUi(state.team.totalPower)));
+            statusBuilder.AppendLine(string.Format("Combat line: ATK {0} / DEF {1} / CTRL {2}",
+                NumberNotationFormatter.FormatForUi(state.team.teamAttack),
+                NumberNotationFormatter.FormatForUi(state.team.teamDefense),
+                NumberNotationFormatter.FormatForUi(state.team.teamControl)));
             statusBuilder.AppendLine(string.Format("Auto run: {0}", state.league.autoRunEnabled ? "ON" : "OFF"));
 
-            string quickText = string.Format("Gold/min {0} | Pending offline {1}m | Next focus: {2}",
+            string quickText = string.Format("Gold/min {0} | XP bank {1} | Pending offline {2}m | Next focus: {3}",
                 NumberNotationFormatter.FormatForUi((long)goldPerMinute),
+                NumberNotationFormatter.FormatForUi(state.economy.playerExp),
                 state.pendingOfflineSeconds / 60,
                 quickHint);
 
@@ -86,8 +91,9 @@ namespace IdleSoccerClubMVP.UI.ViewData
 
         public static string BuildFacilitySummary(GameState state, int upgradeableFacilityCount, bool scoutCenterReady)
         {
-            return string.Format("Facility material {0} | Upgradeable facilities {1} | Scout center ready {2}",
+            return string.Format("Facility material {0} | Gear material {1} | Upgradeable facilities {2} | Scout center ready {3}",
                 EconomyValue.FromInt(state.economy.facilityMaterial).ToUiString(),
+                EconomyValue.FromInt(state.economy.gearMaterial).ToUiString(false),
                 upgradeableFacilityCount,
                 scoutCenterReady ? "YES" : "NO");
         }
@@ -100,6 +106,10 @@ namespace IdleSoccerClubMVP.UI.ViewData
                 NumberNotationFormatter.FormatForUi(state.team.totalPower));
 
             StringBuilder footerBuilder = new StringBuilder();
+            footerBuilder.AppendLine(string.Format("Combat line: ATK {0} / DEF {1} / CTRL {2}",
+                NumberNotationFormatter.FormatForUi(state.team.teamAttack),
+                NumberNotationFormatter.FormatForUi(state.team.teamDefense),
+                NumberNotationFormatter.FormatForUi(state.team.teamControl)));
             footerBuilder.AppendLine(string.Format("Active team colors: {0}", teamColorSummary));
             footerBuilder.AppendLine(string.Format("Tactic effect: {0}", tacticSummary));
             footerBuilder.AppendLine(string.Format("Formation fit: {0}", formationFitSummary));
@@ -110,17 +120,20 @@ namespace IdleSoccerClubMVP.UI.ViewData
 
         public static string BuildShopSummary(GameState state, string activeCategoryDisplayName)
         {
-            return string.Format("Category: {0} | Scout tickets {1} | Last scout: {2}",
+            return string.Format("Category: {0} | Scout tickets {1} | Gems {2} | Last scout: {3}",
                 activeCategoryDisplayName,
                 EconomyValue.FromInt(state.economy.scoutCurrency).ToUiString(false),
+                EconomyValue.FromInt(state.economy.premiumCurrency).ToUiString(false),
                 string.IsNullOrEmpty(state.scout.lastScoutResultSummary) ? "none" : state.scout.lastScoutResultSummary);
         }
 
         public static string BuildExpeditionSummary(GameState state)
         {
             return string.Format(
-                "Dummy PvE lanes built for UI validation. Team power {0}. Each lane keeps recommended power, entries, and result flow visible.",
-                NumberNotationFormatter.FormatForUi(state.team.totalPower));
+                "Dummy PvE lanes built for UI validation. Team power {0}, XP {1}, gear {2}. Each lane keeps reward identity visible for later system wiring.",
+                NumberNotationFormatter.FormatForUi(state.team.totalPower),
+                NumberNotationFormatter.FormatForUi(state.economy.playerExp),
+                NumberNotationFormatter.FormatForUi(state.economy.gearMaterial));
         }
     }
 }

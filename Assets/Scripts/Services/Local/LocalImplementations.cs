@@ -266,6 +266,7 @@ namespace IdleSoccerClubMVP.Services.Local
         {
             GameStateSaveData saveData = saveRepository.Load();
             State = saveData != null ? GameStateSaveMapper.FromSaveData(saveData) : CreateNewState();
+            SaveMigrationSystem.Migrate(State, configProvider);
             State.lastSavedUtc = TimeSystem.ToUtcString(TimeSystem.UtcNow());
             if (string.IsNullOrEmpty(State.lastClosedUtc))
             {
@@ -346,7 +347,7 @@ namespace IdleSoccerClubMVP.Services.Local
             State.activeMatch.autoContinue = command.autoContinue;
             State.activeMatch.stageId = stage.id;
             State.activeMatch.matchId = Guid.NewGuid().ToString("N");
-            State.activeMatch.opponentPower = stage.recommendedPower;
+            State.activeMatch.opponentPower = stage.opponentPower > 0 ? stage.opponentPower : stage.recommendedPower;
             State.activeMatch.opponentName = stage.displayName + " Rival";
             State.activeMatch.endAtUtc = TimeSystem.ToUtcString(TimeSystem.UtcNow().AddSeconds(30));
             message = string.Format("{0} started. Ends at {1}", stage.displayName, State.activeMatch.endAtUtc);
@@ -556,12 +557,7 @@ namespace IdleSoccerClubMVP.Services.Local
 
             if (result.isWin)
             {
-                RewardGrant grant = new RewardGrant();
-                grant.gold = stage.rewardGold;
-                grant.scoutCurrency = stage.rewardScoutCurrency;
-                grant.facilityMaterial = stage.rewardFacilityMaterial;
-                grant.summary = "Match win reward";
-                ApplyReward(grant);
+                ApplyReward(LeagueRewardSystem.BuildStageVictoryReward(stage));
 
                 State.league.lastClearedStageId = stage.id;
                 State.league.highestClearedStageIndex = Math.Max(State.league.highestClearedStageIndex, State.league.currentStageIndex);
@@ -578,6 +574,7 @@ namespace IdleSoccerClubMVP.Services.Local
                 }
                 else
                 {
+                    ApplyReward(LeagueRewardSystem.BuildPromotionReward(league));
                     LeagueDefinition nextLeague = configProvider.GetNextLeague(State.league.currentLeagueId);
                     if (nextLeague != null)
                     {
@@ -604,8 +601,11 @@ namespace IdleSoccerClubMVP.Services.Local
         private void ApplyReward(RewardGrant grant)
         {
             State.economy.gold += grant.gold;
+            State.economy.playerExp += grant.playerExp;
+            State.economy.gearMaterial += grant.gearMaterial;
             State.economy.scoutCurrency += grant.scoutCurrency;
             State.economy.facilityMaterial += grant.facilityMaterial;
+            State.economy.premiumCurrency += grant.premiumCurrency;
         }
 
         private void SaveAndRefresh()
@@ -645,8 +645,11 @@ namespace IdleSoccerClubMVP.Services.Local
             state.lastClosedUtc = state.lastSavedUtc;
             state.lastIdleClaimUtc = state.lastSavedUtc;
             state.economy.gold = 1500;
+            state.economy.playerExp = 240;
+            state.economy.gearMaterial = 24;
             state.economy.facilityMaterial = 180;
             state.economy.scoutCurrency = 30;
+            state.economy.premiumCurrency = 15;
             state.team.selectedFormationId = "4-4-2";
             state.team.selectedTacticId = "balance";
             state.league.currentLeagueId = "league_09";
@@ -681,17 +684,7 @@ namespace IdleSoccerClubMVP.Services.Local
 
         private static List<string> BuildSlotBlueprint(string formationId)
         {
-            if (formationId == "4-3-3")
-            {
-                return new List<string> { "GK", "DF", "DF", "DF", "DF", "MF", "MF", "MF", "FW", "FW", "FW" };
-            }
-
-            if (formationId == "4-2-3-1")
-            {
-                return new List<string> { "GK", "DF", "DF", "DF", "DF", "MF", "MF", "MF", "MF", "MF", "FW" };
-            }
-
-            return new List<string> { "GK", "DF", "DF", "DF", "DF", "MF", "MF", "MF", "MF", "FW", "FW" };
+            return FormationSlotUtility.BuildSlotBlueprint(formationId);
         }
     }
 

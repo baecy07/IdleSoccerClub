@@ -1,33 +1,40 @@
 {
   "idleBalance": {
     "baseGoldPerMinute": 18,
+    "basePlayerExpPerMinute": 9,
     "powerToGoldFactor": 0.03,
-    "offlineMaxMinutes": 480,
+    "powerToPlayerExpFactor": 0.015,
+    "stagePowerToGoldFactor": 0.01,
+    "stagePowerToPlayerExpFactor": 0.006,
     "idleClaimCapMinutes": 120,
+    "baseOfflineMaxMinutes": 480,
     "scoutCurrencyEveryMinutes": 30,
-    "facilityMaterialEveryMinutes": 45
+    "facilityMaterialEveryMinutes": 45,
+    "gearMaterialEveryMinutes": 40,
+    "premiumCurrencyEveryMinutes": 180,
+    "clubHouseOfflineMinutesPerLevel": 60
   },
   "playerLevelCosts": [
-    { "level": 1, "goldCost": 60 },
-    { "level": 2, "goldCost": 75 },
-    { "level": 3, "goldCost": 90 },
-    { "level": 4, "goldCost": 105 },
-    { "level": 5, "goldCost": 120 },
-    { "level": 6, "goldCost": 140 },
-    { "level": 7, "goldCost": 160 },
-    { "level": 8, "goldCost": 185 },
-    { "level": 9, "goldCost": 210 },
-    { "level": 10, "goldCost": 240 },
-    { "level": 11, "goldCost": 280 },
-    { "level": 12, "goldCost": 320 },
-    { "level": 13, "goldCost": 370 },
-    { "level": 14, "goldCost": 430 },
-    { "level": 15, "goldCost": 500 },
-    { "level": 16, "goldCost": 580 },
-    { "level": 17, "goldCost": 670 },
-    { "level": 18, "goldCost": 770 },
-    { "level": 19, "goldCost": 880 },
-    { "level": 20, "goldCost": 1000 }
+    { "level": 1, "goldCost": 60, "playerExpCost": 20 },
+    { "level": 2, "goldCost": 75, "playerExpCost": 28 },
+    { "level": 3, "goldCost": 90, "playerExpCost": 36 },
+    { "level": 4, "goldCost": 105, "playerExpCost": 44 },
+    { "level": 5, "goldCost": 120, "playerExpCost": 54 },
+    { "level": 6, "goldCost": 140, "playerExpCost": 66 },
+    { "level": 7, "goldCost": 160, "playerExpCost": 78 },
+    { "level": 8, "goldCost": 185, "playerExpCost": 92 },
+    { "level": 9, "goldCost": 210, "playerExpCost": 108 },
+    { "level": 10, "goldCost": 240, "playerExpCost": 126 },
+    { "level": 11, "goldCost": 280, "playerExpCost": 146 },
+    { "level": 12, "goldCost": 320, "playerExpCost": 168 },
+    { "level": 13, "goldCost": 370, "playerExpCost": 192 },
+    { "level": 14, "goldCost": 430, "playerExpCost": 220 },
+    { "level": 15, "goldCost": 500, "playerExpCost": 250 },
+    { "level": 16, "goldCost": 580, "playerExpCost": 284 },
+    { "level": 17, "goldCost": 670, "playerExpCost": 322 },
+    { "level": 18, "goldCost": 770, "playerExpCost": 364 },
+    { "level": 19, "goldCost": 880, "playerExpCost": 410 },
+    { "level": 20, "goldCost": 1000, "playerExpCost": 460 }
   ],
   "starPromotions": [
     { "currentStar": 1, "requiredDuplicates": 1, "goldCost": 150 },
@@ -39,41 +46,41 @@
     {
       "facilityId": "training_ground",
       "levels": [
-        { "level": 1, "upgradeCost": 0, "primaryValue": 10 },
-        { "level": 2, "upgradeCost": 30, "primaryValue": 15 },
-        { "level": 3, "upgradeCost": 55, "primaryValue": 20 },
-        { "level": 4, "upgradeCost": 85, "primaryValue": 25 },
-        { "level": 5, "upgradeCost": 125, "primaryValue": 30 }
+        { "level": 1, "upgradeCost": 0, "primaryValue": 10, "secondaryValue": 0 },
+        { "level": 2, "upgradeCost": 30, "primaryValue": 15, "secondaryValue": 0 },
+        { "level": 3, "upgradeCost": 55, "primaryValue": 20, "secondaryValue": 0 },
+        { "level": 4, "upgradeCost": 85, "primaryValue": 25, "secondaryValue": 0 },
+        { "level": 5, "upgradeCost": 125, "primaryValue": 30, "secondaryValue": 0 }
       ]
     },
     {
       "facilityId": "scout_center",
       "levels": [
-        { "level": 1, "upgradeCost": 0, "primaryValue": 3 },
-        { "level": 2, "upgradeCost": 35, "primaryValue": 3 },
-        { "level": 3, "upgradeCost": 65, "primaryValue": 4 },
-        { "level": 4, "upgradeCost": 95, "primaryValue": 4 },
-        { "level": 5, "upgradeCost": 140, "primaryValue": 5 }
+        { "level": 1, "upgradeCost": 0, "primaryValue": 3, "secondaryValue": 0 },
+        { "level": 2, "upgradeCost": 35, "primaryValue": 3, "secondaryValue": 0 },
+        { "level": 3, "upgradeCost": 65, "primaryValue": 4, "secondaryValue": 0 },
+        { "level": 4, "upgradeCost": 95, "primaryValue": 4, "secondaryValue": 0 },
+        { "level": 5, "upgradeCost": 140, "primaryValue": 5, "secondaryValue": 0 }
       ]
     },
     {
       "facilityId": "club_house",
       "levels": [
-        { "level": 1, "upgradeCost": 0, "primaryValue": 0.00 },
-        { "level": 2, "upgradeCost": 28, "primaryValue": 0.08 },
-        { "level": 3, "upgradeCost": 52, "primaryValue": 0.15 },
-        { "level": 4, "upgradeCost": 78, "primaryValue": 0.24 },
-        { "level": 5, "upgradeCost": 110, "primaryValue": 0.35 }
+        { "level": 1, "upgradeCost": 0, "primaryValue": 0.00, "secondaryValue": 480 },
+        { "level": 2, "upgradeCost": 28, "primaryValue": 0.08, "secondaryValue": 540 },
+        { "level": 3, "upgradeCost": 52, "primaryValue": 0.15, "secondaryValue": 600 },
+        { "level": 4, "upgradeCost": 78, "primaryValue": 0.24, "secondaryValue": 660 },
+        { "level": 5, "upgradeCost": 110, "primaryValue": 0.35, "secondaryValue": 720 }
       ]
     },
     {
       "facilityId": "tactic_lab",
       "levels": [
-        { "level": 1, "upgradeCost": 0, "primaryValue": 1 },
-        { "level": 2, "upgradeCost": 32, "primaryValue": 2 },
-        { "level": 3, "upgradeCost": 58, "primaryValue": 2 },
-        { "level": 4, "upgradeCost": 86, "primaryValue": 3 },
-        { "level": 5, "upgradeCost": 120, "primaryValue": 3 }
+        { "level": 1, "upgradeCost": 0, "primaryValue": 1, "secondaryValue": 0 },
+        { "level": 2, "upgradeCost": 32, "primaryValue": 2, "secondaryValue": 0 },
+        { "level": 3, "upgradeCost": 58, "primaryValue": 2, "secondaryValue": 0 },
+        { "level": 4, "upgradeCost": 86, "primaryValue": 3, "secondaryValue": 0 },
+        { "level": 5, "upgradeCost": 120, "primaryValue": 3, "secondaryValue": 0 }
       ]
     }
   ]

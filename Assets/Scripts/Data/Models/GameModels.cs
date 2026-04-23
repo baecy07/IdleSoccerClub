@@ -5,7 +5,7 @@ namespace IdleSoccerClubMVP.Data.Models
 {
     public static class GameConstants
     {
-        public const string SaveVersion = "0.1.0";
+        public const string SaveVersion = "0.2.0";
         public const string LoopStateWarmup = "warmup";
         public const string LoopStateMatch = "league_match";
         public const string ClubAxisId = "club";
@@ -39,8 +39,11 @@ namespace IdleSoccerClubMVP.Data.Models
         public string lastIdleClaimUtc = string.Empty;
         public int pendingOfflineSeconds;
         public int pendingOfflineGold;
+        public int pendingOfflinePlayerExp;
+        public int pendingOfflineGearMaterial;
         public int pendingOfflineScoutCurrency;
         public int pendingOfflineFacilityMaterial;
+        public int pendingOfflinePremiumCurrency;
         public EconomyState economy = new EconomyState();
         public TeamState team = new TeamState();
         public FacilityState facilities = new FacilityState();
@@ -60,6 +63,7 @@ namespace IdleSoccerClubMVP.Data.Models
         public int gearMaterial;
         public int facilityMaterial;
         public int scoutCurrency;
+        public int premiumCurrency;
     }
 
     [Serializable]
@@ -69,6 +73,12 @@ namespace IdleSoccerClubMVP.Data.Models
         public string selectedFormationId = "4-4-2";
         public string selectedTacticId = "balance";
         public List<string> activeTeamColorIds = new List<string>();
+        public int teamAttack;
+        public int teamDefense;
+        public int teamControl;
+        public float formationFitBonus;
+        public float tacticBonus;
+        public float teamColorBonus;
         public int totalPower;
     }
 
@@ -128,6 +138,14 @@ namespace IdleSoccerClubMVP.Data.Models
         public int shots;
         public int shotsOnTarget;
         public string topScorerNames = string.Empty;
+        public string momPlayerId = string.Empty;
+        public int teamAttack;
+        public int teamDefense;
+        public int teamControl;
+        public int opponentAttack;
+        public int opponentDefense;
+        public int opponentControl;
+        public float matchAdvantage;
         public string summary = string.Empty;
         public string debugBreakdown = string.Empty;
     }
@@ -157,6 +175,9 @@ namespace IdleSoccerClubMVP.Data.Models
         public string preferredFormation = string.Empty;
         public string preferredRole = string.Empty;
         public List<string> traits = new List<string>();
+        public int attackContribution;
+        public int defenseContribution;
+        public int controlContribution;
         public int computedPower;
         public int duplicateShardCount;
     }

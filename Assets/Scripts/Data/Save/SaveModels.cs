@@ -13,8 +13,11 @@ namespace IdleSoccerClubMVP.Data.Save
         public string lastIdleClaimUtc;
         public int pendingOfflineSeconds;
         public int pendingOfflineGold;
+        public int pendingOfflinePlayerExp;
+        public int pendingOfflineGearMaterial;
         public int pendingOfflineScoutCurrency;
         public int pendingOfflineFacilityMaterial;
+        public int pendingOfflinePremiumCurrency;
         public EconomyStateSaveData economy = new EconomyStateSaveData();
         public TeamStateSaveData team = new TeamStateSaveData();
         public FacilityStateSaveData facilities = new FacilityStateSaveData();
@@ -33,6 +36,7 @@ namespace IdleSoccerClubMVP.Data.Save
         public int gearMaterial;
         public int facilityMaterial;
         public int scoutCurrency;
+        public int premiumCurrency;
     }
 
     [Serializable]
@@ -42,6 +46,12 @@ namespace IdleSoccerClubMVP.Data.Save
         public string selectedFormationId;
         public string selectedTacticId;
         public List<string> activeTeamColorIds = new List<string>();
+        public int teamAttack;
+        public int teamDefense;
+        public int teamControl;
+        public float formationFitBonus;
+        public float tacticBonus;
+        public float teamColorBonus;
         public int totalPower;
     }
 
@@ -101,6 +111,14 @@ namespace IdleSoccerClubMVP.Data.Save
         public int shots;
         public int shotsOnTarget;
         public string topScorerNames;
+        public string momPlayerId;
+        public int teamAttack;
+        public int teamDefense;
+        public int teamControl;
+        public int opponentAttack;
+        public int opponentDefense;
+        public int opponentControl;
+        public float matchAdvantage;
         public string summary;
         public string debugBreakdown;
     }
@@ -126,15 +144,25 @@ namespace IdleSoccerClubMVP.Data.Save
             saveData.lastIdleClaimUtc = state.lastIdleClaimUtc;
             saveData.pendingOfflineSeconds = state.pendingOfflineSeconds;
             saveData.pendingOfflineGold = state.pendingOfflineGold;
+            saveData.pendingOfflinePlayerExp = state.pendingOfflinePlayerExp;
+            saveData.pendingOfflineGearMaterial = state.pendingOfflineGearMaterial;
             saveData.pendingOfflineScoutCurrency = state.pendingOfflineScoutCurrency;
             saveData.pendingOfflineFacilityMaterial = state.pendingOfflineFacilityMaterial;
+            saveData.pendingOfflinePremiumCurrency = state.pendingOfflinePremiumCurrency;
             saveData.economy.gold = state.economy.gold;
             saveData.economy.playerExp = state.economy.playerExp;
             saveData.economy.gearMaterial = state.economy.gearMaterial;
             saveData.economy.facilityMaterial = state.economy.facilityMaterial;
             saveData.economy.scoutCurrency = state.economy.scoutCurrency;
+            saveData.economy.premiumCurrency = state.economy.premiumCurrency;
             saveData.team.selectedFormationId = state.team.selectedFormationId;
             saveData.team.selectedTacticId = state.team.selectedTacticId;
+            saveData.team.teamAttack = state.team.teamAttack;
+            saveData.team.teamDefense = state.team.teamDefense;
+            saveData.team.teamControl = state.team.teamControl;
+            saveData.team.formationFitBonus = state.team.formationFitBonus;
+            saveData.team.tacticBonus = state.team.tacticBonus;
+            saveData.team.teamColorBonus = state.team.teamColorBonus;
             saveData.team.totalPower = state.team.totalPower;
             saveData.team.squadPlayerIds = new List<string>(state.team.squadPlayerIds);
             saveData.team.activeTeamColorIds = new List<string>(state.team.activeTeamColorIds);
@@ -171,6 +199,14 @@ namespace IdleSoccerClubMVP.Data.Save
             saveData.lastMatch.shots = state.lastMatch.shots;
             saveData.lastMatch.shotsOnTarget = state.lastMatch.shotsOnTarget;
             saveData.lastMatch.topScorerNames = state.lastMatch.topScorerNames;
+            saveData.lastMatch.momPlayerId = state.lastMatch.momPlayerId;
+            saveData.lastMatch.teamAttack = state.lastMatch.teamAttack;
+            saveData.lastMatch.teamDefense = state.lastMatch.teamDefense;
+            saveData.lastMatch.teamControl = state.lastMatch.teamControl;
+            saveData.lastMatch.opponentAttack = state.lastMatch.opponentAttack;
+            saveData.lastMatch.opponentDefense = state.lastMatch.opponentDefense;
+            saveData.lastMatch.opponentControl = state.lastMatch.opponentControl;
+            saveData.lastMatch.matchAdvantage = state.lastMatch.matchAdvantage;
             saveData.lastMatch.summary = state.lastMatch.summary;
             saveData.lastMatch.debugBreakdown = state.lastMatch.debugBreakdown;
 
@@ -200,15 +236,25 @@ namespace IdleSoccerClubMVP.Data.Save
             state.lastIdleClaimUtc = saveData.lastIdleClaimUtc;
             state.pendingOfflineSeconds = saveData.pendingOfflineSeconds;
             state.pendingOfflineGold = saveData.pendingOfflineGold;
+            state.pendingOfflinePlayerExp = saveData.pendingOfflinePlayerExp;
+            state.pendingOfflineGearMaterial = saveData.pendingOfflineGearMaterial;
             state.pendingOfflineScoutCurrency = saveData.pendingOfflineScoutCurrency;
             state.pendingOfflineFacilityMaterial = saveData.pendingOfflineFacilityMaterial;
+            state.pendingOfflinePremiumCurrency = saveData.pendingOfflinePremiumCurrency;
             state.economy.gold = saveData.economy.gold;
             state.economy.playerExp = saveData.economy.playerExp;
             state.economy.gearMaterial = saveData.economy.gearMaterial;
             state.economy.facilityMaterial = saveData.economy.facilityMaterial;
             state.economy.scoutCurrency = saveData.economy.scoutCurrency;
+            state.economy.premiumCurrency = saveData.economy.premiumCurrency;
             state.team.selectedFormationId = saveData.team.selectedFormationId;
             state.team.selectedTacticId = saveData.team.selectedTacticId;
+            state.team.teamAttack = saveData.team.teamAttack;
+            state.team.teamDefense = saveData.team.teamDefense;
+            state.team.teamControl = saveData.team.teamControl;
+            state.team.formationFitBonus = saveData.team.formationFitBonus;
+            state.team.tacticBonus = saveData.team.tacticBonus;
+            state.team.teamColorBonus = saveData.team.teamColorBonus;
             state.team.totalPower = saveData.team.totalPower;
             state.team.squadPlayerIds = saveData.team.squadPlayerIds ?? new List<string>();
             state.team.activeTeamColorIds = saveData.team.activeTeamColorIds ?? new List<string>();
@@ -245,6 +291,14 @@ namespace IdleSoccerClubMVP.Data.Save
             state.lastMatch.shots = saveData.lastMatch.shots;
             state.lastMatch.shotsOnTarget = saveData.lastMatch.shotsOnTarget;
             state.lastMatch.topScorerNames = saveData.lastMatch.topScorerNames;
+            state.lastMatch.momPlayerId = saveData.lastMatch.momPlayerId;
+            state.lastMatch.teamAttack = saveData.lastMatch.teamAttack;
+            state.lastMatch.teamDefense = saveData.lastMatch.teamDefense;
+            state.lastMatch.teamControl = saveData.lastMatch.teamControl;
+            state.lastMatch.opponentAttack = saveData.lastMatch.opponentAttack;
+            state.lastMatch.opponentDefense = saveData.lastMatch.opponentDefense;
+            state.lastMatch.opponentControl = saveData.lastMatch.opponentControl;
+            state.lastMatch.matchAdvantage = saveData.lastMatch.matchAdvantage;
             state.lastMatch.summary = saveData.lastMatch.summary;
             state.lastMatch.debugBreakdown = saveData.lastMatch.debugBreakdown;
 

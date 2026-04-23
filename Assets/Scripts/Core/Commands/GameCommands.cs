@@ -69,8 +69,11 @@ namespace IdleSoccerClubMVP.Core.Commands
     public sealed class RewardGrant
     {
         public int gold;
+        public int playerExp;
+        public int gearMaterial;
         public int scoutCurrency;
         public int facilityMaterial;
+        public int premiumCurrency;
         public string summary = string.Empty;
     }
 

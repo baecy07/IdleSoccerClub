@@ -38,6 +38,12 @@ namespace IdleSoccerClubMVP.Data.Configs
     {
         public string id;
         public string displayName;
+        public int promotionRewardGold;
+        public int promotionRewardPlayerExp;
+        public int promotionRewardGearMaterial;
+        public int promotionRewardFacilityMaterial;
+        public int promotionRewardScoutCurrency;
+        public int promotionRewardPremiumCurrency;
         public LeagueStageDefinition[] stages;
     }
 
@@ -48,8 +54,15 @@ namespace IdleSoccerClubMVP.Data.Configs
         public string displayName;
         public int recommendedPower;
         public int rewardGold;
+        public int rewardPlayerExp;
+        public int rewardGearMaterial;
         public int rewardFacilityMaterial;
         public int rewardScoutCurrency;
+        public int rewardPremiumCurrency;
+        public int opponentAttack;
+        public int opponentDefense;
+        public int opponentControl;
+        public int opponentPower;
     }
 
     [Serializable]
@@ -96,7 +109,14 @@ namespace IdleSoccerClubMVP.Data.Configs
     {
         public int baseGoldPerMinute;
         public float powerToGoldFactor;
-        public int offlineMaxMinutes;
+        public int basePlayerExpPerMinute;
+        public float powerToPlayerExpFactor;
+        public float stagePowerToGoldFactor;
+        public float stagePowerToPlayerExpFactor;
+        public int baseOfflineMaxMinutes;
+        public int gearMaterialEveryMinutes;
+        public int premiumCurrencyEveryMinutes;
+        public int clubHouseOfflineMinutesPerLevel;
         public int idleClaimCapMinutes;
         public int scoutCurrencyEveryMinutes;
         public int facilityMaterialEveryMinutes;
@@ -107,6 +127,7 @@ namespace IdleSoccerClubMVP.Data.Configs
     {
         public int level;
         public int goldCost;
+        public int playerExpCost;
     }
 
     [Serializable]
@@ -130,6 +151,7 @@ namespace IdleSoccerClubMVP.Data.Configs
         public int level;
         public int upgradeCost;
         public float primaryValue;
+        public float secondaryValue;
     }
 
     [Serializable]
@@ -159,6 +181,7 @@ namespace IdleSoccerClubMVP.Data.Configs
         public string displayName;
         public float teamPowerBonus;
         public float attackModifier;
+        public float defenseModifier;
         public float possessionModifier;
         public float shotModifier;
     }

@@ -5,9 +5,9 @@
     { "id": "4-2-3-1", "displayName": "4-2-3-1", "teamPowerBonus": 0.025, "attackBonus": 0.02, "defenseBonus": 0.02, "controlBonus": 0.02, "preferredBonus": 0.05 }
   ],
   "tactics": [
-    { "id": "balance", "displayName": "밸런스형", "teamPowerBonus": 0.02, "attackModifier": 0.02, "possessionModifier": 0.02, "shotModifier": 0.00 },
-    { "id": "possession", "displayName": "점유형", "teamPowerBonus": 0.015, "attackModifier": 0.00, "possessionModifier": 0.06, "shotModifier": 0.01 },
-    { "id": "counter", "displayName": "역습형", "teamPowerBonus": 0.018, "attackModifier": 0.05, "possessionModifier": -0.05, "shotModifier": 0.03 }
+    { "id": "balance", "displayName": "Balance", "teamPowerBonus": 0.02, "attackModifier": 0.02, "defenseModifier": 0.02, "possessionModifier": 0.02, "shotModifier": 0.00 },
+    { "id": "possession", "displayName": "Possession", "teamPowerBonus": 0.015, "attackModifier": 0.00, "defenseModifier": 0.01, "possessionModifier": 0.06, "shotModifier": 0.01 },
+    { "id": "counter", "displayName": "Counter", "teamPowerBonus": 0.018, "attackModifier": 0.05, "defenseModifier": -0.01, "possessionModifier": -0.05, "shotModifier": 0.03 }
   ],
   "teamColors": [
     { "axisId": "club", "requiredCount": 3, "bonusPercent": 0.05 },
