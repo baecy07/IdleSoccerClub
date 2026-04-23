@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using IdleSoccerClubMVP.Core.Commands;
+using IdleSoccerClubMVP.Core.Economy;
 using IdleSoccerClubMVP.Data.Configs;
 using IdleSoccerClubMVP.Data.Models;
 using IdleSoccerClubMVP.Services.Interfaces;
 using IdleSoccerClubMVP.Systems;
+using IdleSoccerClubMVP.UI.ViewData;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -442,39 +444,27 @@ namespace IdleSoccerClubMVP.UI
 
         private void RefreshTopBar()
         {
-            GameState state = progressService.State;
-            goldValueText.text = string.Format("Gold {0:N0}", state.economy.gold);
-            premiumValueText.text = "Gem -";
-            scoutTicketValueText.text = string.Format("Scout {0:N0}", state.economy.scoutCurrency);
-            coreResourceValueText.text = string.Format("Core {0:N0}", state.economy.facilityMaterial);
+            HudResourceViewData viewData = UiScreenViewDataBuilder.BuildHud(progressService.State);
+            goldValueText.text = viewData.GoldLabel;
+            premiumValueText.text = viewData.PremiumLabel;
+            scoutTicketValueText.text = viewData.ScoutLabel;
+            coreResourceValueText.text = viewData.CoreLabel;
         }
 
         private void RefreshHomeScreen()
         {
             GameState state = progressService.State;
             LeagueStageDefinition stage = configProvider.GetCurrentStage(state);
-            StringBuilder statusBuilder = new StringBuilder();
-            statusBuilder.AppendLine(string.Format("League {0} / Stage {1}", state.league.currentLeagueId, state.league.currentStageIndex + 1));
-            statusBuilder.AppendLine(string.Format("Current loop: {0}", state.league.loopStateId));
-            statusBuilder.AppendLine(string.Format("Recommended power: {0:N0}", stage != null ? stage.recommendedPower : 0));
-            statusBuilder.AppendLine(string.Format("Team power: {0:N0}", state.team.totalPower));
-            statusBuilder.AppendLine(string.Format("Auto run: {0}", state.league.autoRunEnabled ? "ON" : "OFF"));
-            homeStatusText.text = statusBuilder.ToString();
-
-            homeQuickText.text = string.Format("Gold/min {0:N0} | Pending offline {1}m | Next focus: {2}",
+            HomeScreenViewData viewData = UiScreenViewDataBuilder.BuildHome(
+                state,
+                stage,
                 IdleRewardSystem.CalculateGoldPerMinute(state, configProvider),
-                state.pendingOfflineSeconds / 60,
-                BuildQuickGrowthHint());
+                BuildQuickGrowthHint(),
+                BuildTeamColorSummary());
 
-            StringBuilder summaryBuilder = new StringBuilder();
-            summaryBuilder.AppendLine(string.Format("Warmup stage: {0}", state.league.currentWarmupStageId));
-            summaryBuilder.AppendLine(string.Format("Scout center candidates: {0}", state.scout.currentScoutCenterCandidateIds.Count));
-            summaryBuilder.AppendLine(string.Format("Active team color: {0}", BuildTeamColorSummary()));
-            if (state.lastMatch.hasResult)
-            {
-                summaryBuilder.AppendLine(string.Format("Latest result: {0}", state.lastMatch.summary));
-            }
-            homeSummaryText.text = summaryBuilder.ToString();
+            homeStatusText.text = viewData.StatusText;
+            homeQuickText.text = viewData.QuickText;
+            homeSummaryText.text = viewData.SummaryText;
 
             RefreshHomeFieldVisual();
         }
@@ -511,10 +501,10 @@ namespace IdleSoccerClubMVP.UI
         private void RefreshFacilityScreen()
         {
             GameState state = progressService.State;
-            facilitySummaryText.text = string.Format("Facility material {0:N0} | Upgradeable facilities {1} | Scout center ready {2}",
-                state.economy.facilityMaterial,
+            facilitySummaryText.text = UiScreenViewDataBuilder.BuildFacilitySummary(
+                state,
                 CountUpgradeableFacilities(),
-                IsScoutCenterReady() ? "YES" : "NO");
+                IsScoutCenterReady());
 
             UiFactory.ClearChildren(facilityGridRoot);
             List<FacilityCardState> cards = BuildFacilityCards();
@@ -541,25 +531,26 @@ namespace IdleSoccerClubMVP.UI
         private void RefreshSquadScreen()
         {
             GameState state = progressService.State;
-            squadHeaderText.text = string.Format(
-                "Formation {0} | Tactic {1} | Power {2:N0}",
-                state.team.selectedFormationId,
-                state.team.selectedTacticId,
-                state.team.totalPower);
+            SquadScreenViewData viewData = UiScreenViewDataBuilder.BuildSquad(
+                state,
+                configProvider.GetTacticLabUnlockCount(state.facilities.tacticLabLevel),
+                BuildTeamColorSummary(),
+                BuildTacticSummary(state.team.selectedTacticId),
+                BuildFormationFitSummary());
+
+            squadHeaderText.text = viewData.HeaderText;
 
             BuildFormationBoard();
             BuildPlayerList();
-            squadFooterText.text = BuildSquadFooterSummary();
+            squadFooterText.text = viewData.FooterText;
             ShowSquadSubtab(activeSquadSubtabId);
         }
 
         private void RefreshShopScreen()
         {
-            shopSummaryText.text = string.Format(
-                "Category: {0} | Scout tickets {1:N0} | Last scout: {2}",
-                GetShopCategoryDisplayName(activeShopCategoryId),
-                progressService.State.economy.scoutCurrency,
-                string.IsNullOrEmpty(progressService.State.scout.lastScoutResultSummary) ? "none" : progressService.State.scout.lastScoutResultSummary);
+            shopSummaryText.text = UiScreenViewDataBuilder.BuildShopSummary(
+                progressService.State,
+                GetShopCategoryDisplayName(activeShopCategoryId));
 
             UiFactory.ClearChildren(shopCardRoot);
             List<ShopItemViewData> items = BuildShopItems(activeShopCategoryId);
@@ -613,9 +604,7 @@ namespace IdleSoccerClubMVP.UI
 
         private void RefreshExpeditionScreen()
         {
-            expeditionSummaryText.text = string.Format(
-                "Dummy PvE lanes built for UI validation. Team power {0:N0}. Each lane keeps recommended power, entries, and result flow visible.",
-                progressService.State.team.totalPower);
+            expeditionSummaryText.text = UiScreenViewDataBuilder.BuildExpeditionSummary(progressService.State);
 
             UiFactory.ClearChildren(expeditionCardRoot);
             List<ExpeditionViewData> expeditions = BuildExpeditions();
@@ -626,8 +615,8 @@ namespace IdleSoccerClubMVP.UI
                 UiFactory.CreateText("ExpeditionTitle_" + index, card.transform, expedition.Title, 18, TextAnchor.UpperLeft, Color.white);
                 UiFactory.CreateText("ExpeditionBody_" + index, card.transform, expedition.Description, 15, TextAnchor.UpperLeft, new Color(0.90f, 0.94f, 1f, 1f));
                 UiFactory.CreateText("ExpeditionMeta_" + index, card.transform, string.Format(
-                    "Recommended power {0:N0} | Entries {1} | Highest clear {2}",
-                    expedition.RecommendedPower,
+                    "Recommended power {0} | Entries {1} | Highest clear {2}",
+                    NumberNotationFormatter.FormatForUi(expedition.RecommendedPower),
                     expedition.EntryCount,
                     expedition.HighestClear), 15, TextAnchor.UpperLeft, new Color(0.80f, 0.86f, 0.96f, 1f));
 
@@ -666,7 +655,7 @@ namespace IdleSoccerClubMVP.UI
                     PlayerUnitData player = ownedPlayers.Find(item => item.id == playerId);
                     string position = slotIndex < blueprint.Count ? blueprint[slotIndex] : "NA";
                     string label = player != null
-                        ? string.Format("{0}\n{1} / {2:N0}", position, ShortName(player.name), player.computedPower)
+                        ? string.Format("{0}\n{1} / {2}", position, ShortName(player.name), NumberNotationFormatter.FormatForUi(player.computedPower))
                         : string.Format("{0}\nEmpty", position);
                     Button slotButton = UiFactory.CreateButton("SquadSlot_" + slotIndex, row.transform, label, delegate
                     {
@@ -688,12 +677,12 @@ namespace IdleSoccerClubMVP.UI
             {
                 PlayerUnitData player = players[index];
                 Button button = UiFactory.CreateButton("PlayerCard_" + player.id, playersListRoot, string.Format(
-                    "{0}  [{1}]  Lv.{2}  Star {3}  Power {4:N0}",
+                    "{0}  [{1}]  Lv.{2}  Star {3}  Power {4}",
                     player.name,
                     player.position,
                     player.level,
                     player.star,
-                    player.computedPower), delegate
+                    NumberNotationFormatter.FormatForUi(player.computedPower)), delegate
                 {
                     OpenPlayerPopup(player.id);
                 }, new Color(0.18f, 0.22f, 0.30f, 1f), 16, 56f);
@@ -831,13 +820,13 @@ namespace IdleSoccerClubMVP.UI
             StringBuilder builder = new StringBuilder();
             builder.AppendLine(string.Format("{0} [{1}]  {2}", player.name, player.position, player.rarity));
             builder.AppendLine(string.Format("Level {0}/{1} | Star {2}", player.level, levelCap, player.star));
-            builder.AppendLine(string.Format("Power {0:N0}", player.computedPower));
+            builder.AppendLine(string.Format("Power {0}", NumberNotationFormatter.FormatForUi(player.computedPower)));
             builder.AppendLine(string.Format("Club {0} | Nation {1}", player.club, player.nationality));
             builder.AppendLine(string.Format("Preferred formation {0}", player.preferredFormation));
             builder.AppendLine(string.Format("Traits {0}", player.traits.Count == 0 ? "-" : string.Join(", ", player.traits.ToArray())));
             builder.AppendLine();
-            builder.AppendLine(string.Format("Next level cost: {0}", nextLevelCost != null ? nextLevelCost.goldCost.ToString("N0") : "N/A"));
-            builder.AppendLine(string.Format("Promotion need: {0}", nextPromotionRule != null ? nextPromotionRule.requiredDuplicates + " dup / " + nextPromotionRule.goldCost.ToString("N0") + " gold" : "Max"));
+            builder.AppendLine(string.Format("Next level cost: {0}", nextLevelCost != null ? NumberNotationFormatter.FormatForUi(nextLevelCost.goldCost) : "N/A"));
+            builder.AppendLine(string.Format("Promotion need: {0}", nextPromotionRule != null ? nextPromotionRule.requiredDuplicates + " dup / " + NumberNotationFormatter.FormatForUi(nextPromotionRule.goldCost) + " gold" : "Max"));
             builder.AppendLine(string.Format("Owned duplicate shards: {0}", player.duplicateShardCount));
 
             List<PopupAction> actions = new List<PopupAction>();
