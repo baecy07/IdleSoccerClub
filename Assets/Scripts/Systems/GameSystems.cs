@@ -90,6 +90,31 @@ namespace IdleSoccerClubMVP.Systems
                 state.lastMatch = new MatchResultData();
             }
 
+            if (state.runtime == null)
+            {
+                state.runtime = new RuntimeState();
+            }
+
+            if (state.runtime.team == null)
+            {
+                state.runtime.team = new RuntimeTeamComputedData();
+            }
+
+            if (state.runtime.matchPreview == null)
+            {
+                state.runtime.matchPreview = new RuntimeMatchPreviewData();
+            }
+
+            if (state.runtime.offlineRewardPreview == null)
+            {
+                state.runtime.offlineRewardPreview = new RuntimeOfflineRewardPreviewData();
+            }
+
+            if (state.runtime.offlineRewardPreview.reward == null)
+            {
+                state.runtime.offlineRewardPreview.reward = new RewardGrant();
+            }
+
             if (state.ownedPlayers == null)
             {
                 state.ownedPlayers = new List<OwnedPlayerState>();
@@ -105,23 +130,10 @@ namespace IdleSoccerClubMVP.Systems
                 state.team.squadPlayerIds = new List<string>();
             }
 
-            if (state.team.activeTeamColorIds == null)
-            {
-                state.team.activeTeamColorIds = new List<string>();
-            }
-
             if (state.scout.currentScoutCenterCandidateIds == null)
             {
                 state.scout.currentScoutCenterCandidateIds = new List<string>();
             }
-
-            state.pendingOfflineSeconds = Math.Max(0, state.pendingOfflineSeconds);
-            state.pendingOfflineGold = Math.Max(0, state.pendingOfflineGold);
-            state.pendingOfflinePlayerExp = Math.Max(0, state.pendingOfflinePlayerExp);
-            state.pendingOfflineGearMaterial = Math.Max(0, state.pendingOfflineGearMaterial);
-            state.pendingOfflineScoutCurrency = Math.Max(0, state.pendingOfflineScoutCurrency);
-            state.pendingOfflineFacilityMaterial = Math.Max(0, state.pendingOfflineFacilityMaterial);
-            state.pendingOfflinePremiumCurrency = Math.Max(0, state.pendingOfflinePremiumCurrency);
 
             state.economy.gold = Math.Max(0, state.economy.gold);
             state.economy.playerExp = Math.Max(0, state.economy.playerExp);
@@ -130,32 +142,107 @@ namespace IdleSoccerClubMVP.Systems
             state.economy.scoutCurrency = Math.Max(0, state.economy.scoutCurrency);
             state.economy.premiumCurrency = Math.Max(0, state.economy.premiumCurrency);
 
+            LeagueDefinition firstLeague = configProvider.Leagues.leagues != null && configProvider.Leagues.leagues.Length > 0
+                ? configProvider.Leagues.leagues[0]
+                : null;
+
             if (string.IsNullOrEmpty(state.team.selectedFormationId))
             {
-                state.team.selectedFormationId = "4-4-2";
+                state.team.selectedFormationId = configProvider.Formations.formations != null && configProvider.Formations.formations.Length > 0
+                    ? configProvider.Formations.formations[0].id
+                    : "4-4-2";
             }
 
             if (string.IsNullOrEmpty(state.team.selectedTacticId))
             {
-                state.team.selectedTacticId = "balance";
+                state.team.selectedTacticId = configProvider.Tactics.tactics != null && configProvider.Tactics.tactics.Length > 0
+                    ? configProvider.Tactics.tactics[0].id
+                    : "balance";
             }
 
-            if (string.IsNullOrEmpty(state.league.currentLeagueId) && configProvider.Leagues.leagues.Length > 0)
+            if (string.IsNullOrEmpty(state.league.currentLeagueId) && firstLeague != null)
             {
-                state.league.currentLeagueId = configProvider.Leagues.leagues[0].id;
+                state.league.currentLeagueId = firstLeague.id;
             }
 
-            LeagueDefinition currentLeague = configProvider.GetLeague(state.league.currentLeagueId);
-            if (currentLeague != null && currentLeague.stages.Length > 0)
+            NormalizeOwnedPlayers(state);
+
+            LeagueDefinition currentLeague = configProvider.GetLeague(state.league.currentLeagueId) ?? firstLeague;
+            if (currentLeague != null && currentLeague.stages != null && currentLeague.stages.Length > 0)
             {
-                state.league.currentStageIndex = Math.Max(0, Math.Min(currentLeague.stages.Length - 1, state.league.currentStageIndex));
-                if (string.IsNullOrEmpty(state.league.currentWarmupStageId))
+                if (string.IsNullOrEmpty(state.league.currentStageId))
                 {
-                    state.league.currentWarmupStageId = currentLeague.stages[state.league.currentStageIndex].id;
+                    int legacyIndex = state.league.legacyCurrentStageIndex >= 0 ? state.league.legacyCurrentStageIndex : 0;
+                    legacyIndex = Math.Max(0, Math.Min(currentLeague.stages.Length - 1, legacyIndex));
+                    state.league.currentStageId = currentLeague.stages[legacyIndex].id;
+                }
+
+                if (configProvider.GetStage(state.league.currentStageId) == null)
+                {
+                    state.league.currentStageId = currentLeague.stages[0].id;
+                }
+
+                if (string.IsNullOrEmpty(state.league.currentWarmupStageId) || configProvider.GetStage(state.league.currentWarmupStageId) == null)
+                {
+                    state.league.currentWarmupStageId = state.league.currentStageId;
+                }
+
+                if (!string.IsNullOrEmpty(state.league.lastClearedStageId) && configProvider.GetStage(state.league.lastClearedStageId) == null)
+                {
+                    state.league.lastClearedStageId = string.Empty;
                 }
             }
 
+            CleanSquadAssignments(state);
             state.saveVersion = GameConstants.SaveVersion;
+        }
+
+        private static void NormalizeOwnedPlayers(GameState state)
+        {
+            Dictionary<string, OwnedPlayerState> merged = new Dictionary<string, OwnedPlayerState>();
+            for (int index = 0; index < state.ownedPlayers.Count; index++)
+            {
+                OwnedPlayerState candidate = state.ownedPlayers[index];
+                if (string.IsNullOrEmpty(candidate.playerId))
+                {
+                    continue;
+                }
+
+                if (!merged.ContainsKey(candidate.playerId))
+                {
+                    merged[candidate.playerId] = new OwnedPlayerState
+                    {
+                        playerId = candidate.playerId,
+                        ownedCount = Math.Max(1, candidate.ownedCount),
+                        level = Math.Max(1, candidate.level),
+                        star = Math.Max(1, candidate.star),
+                        lockState = candidate.lockState
+                    };
+                    continue;
+                }
+
+                OwnedPlayerState existing = merged[candidate.playerId];
+                existing.ownedCount += Math.Max(1, candidate.ownedCount);
+                existing.level = Math.Max(existing.level, Math.Max(1, candidate.level));
+                existing.star = Math.Max(existing.star, Math.Max(1, candidate.star));
+                existing.lockState = existing.lockState || candidate.lockState;
+            }
+
+            state.ownedPlayers = merged.Values
+                .OrderBy(item => item.playerId)
+                .ToList();
+        }
+
+        private static void CleanSquadAssignments(GameState state)
+        {
+            HashSet<string> ownedPlayerIds = new HashSet<string>(state.ownedPlayers.Select(item => item.playerId));
+            for (int index = 0; index < state.team.squadPlayerIds.Count; index++)
+            {
+                if (!ownedPlayerIds.Contains(state.team.squadPlayerIds[index]))
+                {
+                    state.team.squadPlayerIds[index] = string.Empty;
+                }
+            }
         }
     }
 
@@ -166,16 +253,16 @@ namespace IdleSoccerClubMVP.Systems
             TeamCombatSystem.Recalculate(state, configProvider);
         }
 
-        public static int ComputePlayerPower(PlayerUnitData player)
+        public static int ComputePlayerPower(PlayerUnitData player, IConfigProvider configProvider)
         {
-            PlayerPowerSystem.PopulateComputedValues(player);
+            PlayerPowerSystem.PopulateComputedValues(player, configProvider);
             return player.computedPower;
         }
     }
 
     public static class PlayerPowerSystem
     {
-        public static void PopulateComputedValues(PlayerUnitData player)
+        public static void PopulateComputedValues(PlayerUnitData player, IConfigProvider configProvider)
         {
             float rarityMultiplier = ResolveRarityMultiplier(player.rarity);
             float levelMultiplier = 1f + Math.Max(0, player.level - 1) * 0.03f;
@@ -183,16 +270,21 @@ namespace IdleSoccerClubMVP.Systems
 
             float attackValue = player.baseStats.attack * rarityMultiplier * levelMultiplier * starMultiplier;
             float defenseValue = player.baseStats.defense * rarityMultiplier * levelMultiplier * starMultiplier;
-            float controlValue = player.baseStats.control * rarityMultiplier * levelMultiplier * starMultiplier;
+            float controlValue = (player.baseStats.pass * 0.6f + player.baseStats.stamina * 0.4f) * rarityMultiplier * levelMultiplier * starMultiplier;
 
-            ApplyTraitBaseModifiers(player.traits, ref attackValue, ref defenseValue, ref controlValue);
-            ApplyDuplicateShardBonus(player.duplicateShardCount, ref attackValue, ref defenseValue, ref controlValue);
+            ApplyPassiveModifiers(configProvider.GetPassive(player.passiveId), ref attackValue, ref defenseValue, ref controlValue);
+            ApplyDuplicateBonus(player.duplicateShardCount, ref attackValue, ref defenseValue, ref controlValue);
 
             PositionWeights weights = ResolvePositionWeights(player.position);
             player.attackContribution = Math.Max(1, (int)Math.Round(attackValue * weights.attackWeight));
             player.defenseContribution = Math.Max(1, (int)Math.Round(defenseValue * weights.defenseWeight));
             player.controlContribution = Math.Max(1, (int)Math.Round(controlValue * weights.controlWeight));
             player.computedPower = ComputeAggregatePower(player.attackContribution, player.defenseContribution, player.controlContribution);
+        }
+
+        public static int ComputeAggregatePower(int attackContribution, int defenseContribution, int controlContribution)
+        {
+            return Math.Max(1, (int)Math.Round(attackContribution * 0.4f + defenseContribution * 0.35f + controlContribution * 0.25f));
         }
 
         private static float ResolveRarityMultiplier(string rarityId)
@@ -229,47 +321,19 @@ namespace IdleSoccerClubMVP.Systems
             }
         }
 
-        private static void ApplyTraitBaseModifiers(List<string> traits, ref float attackValue, ref float defenseValue, ref float controlValue)
+        private static void ApplyPassiveModifiers(PassiveDefinition passive, ref float attackValue, ref float defenseValue, ref float controlValue)
         {
-            if (traits == null)
+            if (passive == null)
             {
                 return;
             }
 
-            for (int index = 0; index < traits.Count; index++)
-            {
-                switch (traits[index])
-                {
-                    case "poacher":
-                    case "clinical":
-                    case "killer_instinct":
-                    case "legend_finish":
-                        attackValue *= 1.05f;
-                        break;
-                    case "steady_hands":
-                    case "marking":
-                    case "cover":
-                    case "intercept":
-                    case "sweeper":
-                        defenseValue *= 1.04f;
-                        break;
-                    case "build_up":
-                    case "engine":
-                    case "vision":
-                    case "through_pass":
-                    case "tempo":
-                    case "carry":
-                        controlValue *= 1.05f;
-                        break;
-                    case "overlap":
-                        attackValue *= 1.02f;
-                        controlValue *= 1.03f;
-                        break;
-                }
-            }
+            attackValue *= 1f + passive.attackBonusPercent;
+            defenseValue *= 1f + passive.defenseBonusPercent;
+            controlValue *= 1f + passive.controlBonusPercent;
         }
 
-        private static void ApplyDuplicateShardBonus(int duplicateShardCount, ref float attackValue, ref float defenseValue, ref float controlValue)
+        private static void ApplyDuplicateBonus(int duplicateShardCount, ref float attackValue, ref float defenseValue, ref float controlValue)
         {
             float bonusMultiplier = 1f + Math.Max(0, duplicateShardCount) * 0.01f;
             attackValue *= bonusMultiplier;
@@ -294,11 +358,6 @@ namespace IdleSoccerClubMVP.Systems
             }
         }
 
-        public static int ComputeAggregatePower(int attackContribution, int defenseContribution, int controlContribution)
-        {
-            return Math.Max(1, (int)Math.Round(attackContribution * 0.4f + defenseContribution * 0.35f + controlContribution * 0.25f));
-        }
-
         private readonly struct PositionWeights
         {
             public PositionWeights(float attackWeight, float defenseWeight, float controlWeight)
@@ -321,7 +380,7 @@ namespace IdleSoccerClubMVP.Systems
             List<PlayerUnitData> squadPlayers = BuildSquadPlayers(state, configProvider);
             FormationDefinition formation = ResolveFormation(state, configProvider);
             TacticDefinition tactic = ResolveTactic(state, configProvider);
-            List<string> slotBlueprint = FormationSlotUtility.BuildSlotBlueprint(state.team.selectedFormationId);
+            List<string> slotBlueprint = FormationSlotUtility.BuildSlotBlueprint(formation);
 
             int baseAttack = 0;
             int baseDefense = 0;
@@ -339,7 +398,7 @@ namespace IdleSoccerClubMVP.Systems
                 baseDefense += player.defenseContribution;
                 baseControl += player.controlContribution;
 
-                if (player.preferredFormation == state.team.selectedFormationId)
+                if (player.preferredFormations.Contains(state.team.selectedFormationId))
                 {
                     preferredFormationMatchCount++;
                 }
@@ -382,14 +441,22 @@ namespace IdleSoccerClubMVP.Systems
                 + roleSynergy.controlBonus
                 + teamColorBonus;
 
-            state.team.teamAttack = Math.Max(1, (int)Math.Round(baseAttack * attackMultiplier));
-            state.team.teamDefense = Math.Max(1, (int)Math.Round(baseDefense * defenseMultiplier));
-            state.team.teamControl = Math.Max(1, (int)Math.Round(baseControl * controlMultiplier));
-            state.team.formationFitBonus = formationFitBonus + slotFitBonus;
-            state.team.tacticBonus = tactic != null ? tactic.teamPowerBonus + roleSynergy.AverageBonus() : roleSynergy.AverageBonus();
-            state.team.teamColorBonus = teamColorBonus;
-            state.team.activeTeamColorIds = activeTeamColorIds;
-            state.team.totalPower = PlayerPowerSystem.ComputeAggregatePower(state.team.teamAttack, state.team.teamDefense, state.team.teamControl);
+            state.runtime.team.teamAttack = Math.Max(1, (int)Math.Round(baseAttack * attackMultiplier));
+            state.runtime.team.teamDefense = Math.Max(1, (int)Math.Round(baseDefense * defenseMultiplier));
+            state.runtime.team.teamControl = Math.Max(1, (int)Math.Round(baseControl * controlMultiplier));
+            state.runtime.team.formationFitBonus = formationFitBonus + slotFitBonus;
+            state.runtime.team.tacticBonus = tactic != null ? tactic.teamPowerBonus + roleSynergy.AverageBonus() : roleSynergy.AverageBonus();
+            state.runtime.team.teamColorBonus = teamColorBonus;
+            state.runtime.team.activeTeamColorIds = activeTeamColorIds;
+            state.runtime.team.totalPower = PlayerPowerSystem.ComputeAggregatePower(state.runtime.team.teamAttack, state.runtime.team.teamDefense, state.runtime.team.teamControl);
+
+            LeagueStageDefinition stage = configProvider.GetCurrentStage(state);
+            state.runtime.matchPreview.stageId = stage != null ? stage.id : string.Empty;
+            state.runtime.matchPreview.opponentAttack = stage != null ? stage.opponentAttack : 0;
+            state.runtime.matchPreview.opponentDefense = stage != null ? stage.opponentDefense : 0;
+            state.runtime.matchPreview.opponentControl = stage != null ? stage.opponentControl : 0;
+            state.runtime.matchPreview.opponentPower = stage != null ? stage.opponentPower : 0;
+            state.runtime.matchPreview.estimatedWinChance = EstimateWinChance(state.runtime.team.totalPower, stage != null ? stage.opponentPower : 0);
         }
 
         private static List<PlayerUnitData> BuildSquadPlayers(GameState state, IConfigProvider configProvider)
@@ -398,14 +465,17 @@ namespace IdleSoccerClubMVP.Systems
             for (int index = 0; index < state.team.squadPlayerIds.Count; index++)
             {
                 string squadPlayerId = state.team.squadPlayerIds[index];
-                OwnedPlayerState ownedPlayer = state.ownedPlayers.Find(player => player.instanceId == squadPlayerId);
+                OwnedPlayerState ownedPlayer = state.ownedPlayers.Find(player => player.playerId == squadPlayerId);
                 if (ownedPlayer == null)
                 {
                     continue;
                 }
 
                 PlayerUnitData player = configProvider.BuildPlayerUnitData(ownedPlayer);
-                squadPlayers.Add(player);
+                if (player != null)
+                {
+                    squadPlayers.Add(player);
+                }
             }
 
             return squadPlayers;
@@ -414,9 +484,9 @@ namespace IdleSoccerClubMVP.Systems
         private static FormationDefinition ResolveFormation(GameState state, IConfigProvider configProvider)
         {
             FormationDefinition formation = configProvider.GetFormation(state.team.selectedFormationId);
-            if (formation == null && configProvider.TeamPlay.formations.Length > 0)
+            if (formation == null && configProvider.Formations.formations.Length > 0)
             {
-                formation = configProvider.TeamPlay.formations[0];
+                formation = configProvider.Formations.formations[0];
                 state.team.selectedFormationId = formation.id;
             }
 
@@ -426,9 +496,9 @@ namespace IdleSoccerClubMVP.Systems
         private static TacticDefinition ResolveTactic(GameState state, IConfigProvider configProvider)
         {
             TacticDefinition tactic = configProvider.GetTactic(state.team.selectedTacticId);
-            if (tactic == null && configProvider.TeamPlay.tactics.Length > 0)
+            if (tactic == null && configProvider.Tactics.tactics.Length > 0)
             {
-                tactic = configProvider.TeamPlay.tactics[0];
+                tactic = configProvider.Tactics.tactics[0];
                 state.team.selectedTacticId = tactic.id;
             }
 
@@ -437,7 +507,12 @@ namespace IdleSoccerClubMVP.Systems
 
         private static float ResolveFormationFitBonus(int squadCount, int preferredFormationMatchCount)
         {
-            int ratio = squadCount <= 0 ? 0 : (int)Math.Round(preferredFormationMatchCount / (float)squadCount * 100f);
+            if (squadCount <= 0)
+            {
+                return 0f;
+            }
+
+            int ratio = (int)Math.Round(preferredFormationMatchCount / (float)squadCount * 100f);
             if (ratio >= 90)
             {
                 return 0.06f;
@@ -483,12 +558,9 @@ namespace IdleSoccerClubMVP.Systems
                     return new RoleSynergy(0.01f, 0f, 0f);
                 }
             }
-            else
+            else if (preferredRoleId == "anchor" || preferredRoleId == "destroyer" || preferredRoleId == "shot_stopper" || preferredRoleId == "sweeper")
             {
-                if (preferredRoleId == "anchor" || preferredRoleId == "destroyer" || preferredRoleId == "shot_stopper" || preferredRoleId == "sweeper")
-                {
-                    return new RoleSynergy(0f, 0.008f, 0f);
-                }
+                return new RoleSynergy(0f, 0.008f, 0f);
             }
 
             return new RoleSynergy(0f, 0f, 0f);
@@ -498,21 +570,17 @@ namespace IdleSoccerClubMVP.Systems
         {
             float highestBonus = 0f;
             string activeKey = string.Empty;
+            List<TeamColorTierDefinition> tiers = configProvider.GetTeamColorRules(axisId);
 
             foreach (KeyValuePair<string, int> pair in counts)
             {
-                for (int index = 0; index < configProvider.TeamPlay.teamColors.Length; index++)
+                for (int index = 0; index < tiers.Count; index++)
                 {
-                    TeamColorRuleDefinition rule = configProvider.TeamPlay.teamColors[index];
-                    if (rule.axisId != axisId)
+                    TeamColorTierDefinition tier = tiers[index];
+                    if (pair.Value >= tier.requiredCount && tier.bonusPercent >= highestBonus)
                     {
-                        continue;
-                    }
-
-                    if (pair.Value >= rule.requiredCount && rule.bonusPercent >= highestBonus)
-                    {
-                        highestBonus = rule.bonusPercent;
-                        activeKey = string.Format("{0}:{1}:{2}", axisId, pair.Key, rule.requiredCount);
+                        highestBonus = tier.bonusPercent;
+                        activeKey = string.Format("{0}:{1}:{2}", axisId, pair.Key, tier.requiredCount);
                     }
                 }
             }
@@ -538,6 +606,17 @@ namespace IdleSoccerClubMVP.Systems
             }
 
             counts[key]++;
+        }
+
+        private static float EstimateWinChance(int myPower, int opponentPower)
+        {
+            if (opponentPower <= 0)
+            {
+                return 0.5f;
+            }
+
+            float delta = (myPower - opponentPower) / (float)Math.Max(1, opponentPower);
+            return Math.Max(0.15f, Math.Min(0.88f, 0.5f + delta * 0.55f));
         }
 
         private readonly struct RoleSynergy
@@ -582,41 +661,29 @@ namespace IdleSoccerClubMVP.Systems
             int maxMinutes = FacilitySystem.GetClubHouseOfflineMaxMinutes(state.facilities, configProvider);
             int elapsedMinutes = Math.Max(0, Math.Min(maxMinutes, (int)Math.Floor((nowUtc - lastClosed).TotalMinutes)));
             RewardGrant grant = BuildRewardGrant(state, configProvider, elapsedMinutes, true, "Offline Reward");
-            state.pendingOfflineSeconds = elapsedMinutes * 60;
-            state.pendingOfflineGold = grant.gold;
-            state.pendingOfflinePlayerExp = grant.playerExp;
-            state.pendingOfflineGearMaterial = grant.gearMaterial;
-            state.pendingOfflineScoutCurrency = grant.scoutCurrency;
-            state.pendingOfflineFacilityMaterial = grant.facilityMaterial;
-            state.pendingOfflinePremiumCurrency = grant.premiumCurrency;
+            state.runtime.offlineRewardPreview.elapsedSeconds = elapsedMinutes * 60;
+            state.runtime.offlineRewardPreview.appliedStageId = state.league.currentWarmupStageId;
+            state.runtime.offlineRewardPreview.reward = grant;
+            state.runtime.offlineRewardPreview.summary = grant.summary;
             return grant;
         }
 
         public static RewardGrant ClaimPendingOfflineReward(GameState state)
         {
-            RewardGrant grant = new RewardGrant();
-            grant.gold = state.pendingOfflineGold;
-            grant.playerExp = state.pendingOfflinePlayerExp;
-            grant.gearMaterial = state.pendingOfflineGearMaterial;
-            grant.scoutCurrency = state.pendingOfflineScoutCurrency;
-            grant.facilityMaterial = state.pendingOfflineFacilityMaterial;
-            grant.premiumCurrency = state.pendingOfflinePremiumCurrency;
-            grant.summary = string.Format("Claimed offline reward for {0} minutes", state.pendingOfflineSeconds / 60);
+            if (state.runtime.offlineRewardPreview == null || state.runtime.offlineRewardPreview.reward == null || state.runtime.offlineRewardPreview.elapsedSeconds <= 0)
+            {
+                return new RewardGrant { summary = "No offline reward available." };
+            }
 
-            state.pendingOfflineSeconds = 0;
-            state.pendingOfflineGold = 0;
-            state.pendingOfflinePlayerExp = 0;
-            state.pendingOfflineGearMaterial = 0;
-            state.pendingOfflineScoutCurrency = 0;
-            state.pendingOfflineFacilityMaterial = 0;
-            state.pendingOfflinePremiumCurrency = 0;
+            RewardGrant grant = state.runtime.offlineRewardPreview.reward;
+            grant.summary = string.Format("Claimed offline reward for {0} minutes", state.runtime.offlineRewardPreview.elapsedSeconds / 60);
+            state.runtime.offlineRewardPreview = new RuntimeOfflineRewardPreviewData();
             return grant;
         }
 
         public static float CalculateGoldPerMinute(GameState state, IConfigProvider configProvider)
         {
-            RewardRateData rate = BuildRateData(state, configProvider);
-            return rate.goldPerMinute;
+            return BuildRateData(state, configProvider).goldPerMinute;
         }
 
         private static RewardGrant BuildRewardGrant(GameState state, IConfigProvider configProvider, int elapsedMinutes, bool isOffline, string label)
@@ -650,11 +717,11 @@ namespace IdleSoccerClubMVP.Systems
             IdleBalanceDefinition idle = configProvider.Progression.idleBalance;
             LeagueStageDefinition stage = configProvider.GetCurrentStage(state);
             float clubHouseBonus = FacilitySystem.GetClubHouseBonus(state.facilities, configProvider);
-            int stagePower = stage != null ? Math.Max(stage.recommendedPower, stage.opponentPower) : state.team.totalPower;
+            int stagePower = stage != null ? Math.Max(stage.recommendedPower, stage.opponentPower) : state.runtime.team.totalPower;
 
             RewardRateData data = new RewardRateData();
-            data.goldPerMinute = (idle.baseGoldPerMinute + state.team.totalPower * idle.powerToGoldFactor + stagePower * idle.stagePowerToGoldFactor) * (1f + clubHouseBonus);
-            data.playerExpPerMinute = (idle.basePlayerExpPerMinute + state.team.totalPower * idle.powerToPlayerExpFactor + stagePower * idle.stagePowerToPlayerExpFactor) * (1f + clubHouseBonus * 0.75f);
+            data.goldPerMinute = (idle.baseGoldPerMinute + state.runtime.team.totalPower * idle.powerToGoldFactor + stagePower * idle.stagePowerToGoldFactor) * (1f + clubHouseBonus);
+            data.playerExpPerMinute = (idle.basePlayerExpPerMinute + state.runtime.team.totalPower * idle.powerToPlayerExpFactor + stagePower * idle.stagePowerToPlayerExpFactor) * (1f + clubHouseBonus * 0.75f);
             data.gearMaterialEveryMinutes = idle.gearMaterialEveryMinutes;
             data.scoutCurrencyEveryMinutes = idle.scoutCurrencyEveryMinutes;
             data.facilityMaterialEveryMinutes = idle.facilityMaterialEveryMinutes;
@@ -677,27 +744,28 @@ namespace IdleSoccerClubMVP.Systems
     {
         public static RewardGrant BuildStageVictoryReward(LeagueStageDefinition stage)
         {
-            RewardGrant grant = new RewardGrant();
-            grant.gold = stage.rewardGold;
-            grant.playerExp = stage.rewardPlayerExp;
-            grant.gearMaterial = stage.rewardGearMaterial;
-            grant.facilityMaterial = stage.rewardFacilityMaterial;
-            grant.scoutCurrency = stage.rewardScoutCurrency;
-            grant.premiumCurrency = stage.rewardPremiumCurrency;
-            grant.summary = "League stage victory reward";
-            return grant;
+            return BuildReward(stage != null ? stage.victoryReward : null, "League stage victory reward");
         }
 
         public static RewardGrant BuildPromotionReward(LeagueDefinition league)
         {
+            return BuildReward(league != null ? league.promotionReward : null, "League promotion reward");
+        }
+
+        private static RewardGrant BuildReward(RewardDefinition definition, string summary)
+        {
             RewardGrant grant = new RewardGrant();
-            grant.gold = league.promotionRewardGold;
-            grant.playerExp = league.promotionRewardPlayerExp;
-            grant.gearMaterial = league.promotionRewardGearMaterial;
-            grant.facilityMaterial = league.promotionRewardFacilityMaterial;
-            grant.scoutCurrency = league.promotionRewardScoutCurrency;
-            grant.premiumCurrency = league.promotionRewardPremiumCurrency;
-            grant.summary = "League promotion reward";
+            if (definition != null)
+            {
+                grant.gold = definition.gold;
+                grant.playerExp = definition.playerExp;
+                grant.gearMaterial = definition.gearMaterial;
+                grant.facilityMaterial = definition.facilityMaterial;
+                grant.scoutCurrency = definition.scoutCurrency;
+                grant.premiumCurrency = definition.premiumCurrency;
+            }
+
+            grant.summary = summary;
             return grant;
         }
     }
@@ -707,7 +775,7 @@ namespace IdleSoccerClubMVP.Systems
         public static RewardGrant BuildReward(string expeditionId, GameState state)
         {
             RewardGrant grant = new RewardGrant();
-            int basePower = Math.Max(1, state.team.totalPower);
+            int basePower = Math.Max(1, state.runtime.team.totalPower);
             switch (expeditionId)
             {
                 case "player_exp":
@@ -748,17 +816,16 @@ namespace IdleSoccerClubMVP.Systems
             }
 
             FacilityLevelDefinition nextLevel = facility.levels[currentLevel];
-            int goldCost = Math.Max(0, nextLevel.upgradeCost * 3);
-            if (state.economy.facilityMaterial < nextLevel.upgradeCost || state.economy.gold < goldCost)
+            if (state.economy.facilityMaterial < nextLevel.facilityMaterialCost || state.economy.gold < nextLevel.goldCost)
             {
-                message = string.Format("Not enough resources. Need {0} facility material and {1} gold", nextLevel.upgradeCost, goldCost);
+                message = string.Format("Not enough resources. Need {0} facility material and {1} gold", nextLevel.facilityMaterialCost, nextLevel.goldCost);
                 return false;
             }
 
-            state.economy.facilityMaterial -= nextLevel.upgradeCost;
-            state.economy.gold -= goldCost;
+            state.economy.facilityMaterial -= nextLevel.facilityMaterialCost;
+            state.economy.gold -= nextLevel.goldCost;
             SetFacilityLevel(state.facilities, facilityId, currentLevel + 1);
-            message = string.Format("{0} upgraded to Lv.{1}", facilityId, currentLevel + 1);
+            message = string.Format("{0} upgraded to Lv.{1}", facility.displayName, currentLevel + 1);
             return true;
         }
 
@@ -770,7 +837,7 @@ namespace IdleSoccerClubMVP.Systems
         public static float GetClubHouseBonus(FacilityState state, IConfigProvider configProvider)
         {
             FacilityBalanceDefinition facility = configProvider.GetFacility(GameConstants.ClubHouseId);
-            if (facility == null)
+            if (facility == null || facility.levels == null || facility.levels.Length == 0)
             {
                 return 0f;
             }
@@ -782,7 +849,7 @@ namespace IdleSoccerClubMVP.Systems
         public static int GetClubHouseOfflineMaxMinutes(FacilityState state, IConfigProvider configProvider)
         {
             FacilityBalanceDefinition facility = configProvider.GetFacility(GameConstants.ClubHouseId);
-            if (facility == null)
+            if (facility == null || facility.levels == null || facility.levels.Length == 0)
             {
                 return configProvider.Progression.idleBalance.baseOfflineMaxMinutes;
             }
@@ -844,7 +911,7 @@ namespace IdleSoccerClubMVP.Systems
     {
         public static bool TryLevelUp(GameState state, IConfigProvider configProvider, string playerId, out string message)
         {
-            OwnedPlayerState player = state.ownedPlayers.Find(item => item.instanceId == playerId);
+            OwnedPlayerState player = state.ownedPlayers.Find(item => item.playerId == playerId);
             if (player == null)
             {
                 message = "Player was not found.";
@@ -874,13 +941,13 @@ namespace IdleSoccerClubMVP.Systems
             state.economy.gold -= costDefinition.goldCost;
             state.economy.playerExp -= costDefinition.playerExpCost;
             player.level += 1;
-            message = string.Format("{0} leveled up to Lv.{1}", player.definitionId, player.level);
+            message = string.Format("{0} leveled up to Lv.{1}", player.playerId, player.level);
             return true;
         }
 
         public static bool TryPromoteStar(GameState state, IConfigProvider configProvider, string playerId, out string message)
         {
-            OwnedPlayerState player = state.ownedPlayers.Find(item => item.instanceId == playerId);
+            OwnedPlayerState player = state.ownedPlayers.Find(item => item.playerId == playerId);
             if (player == null)
             {
                 message = "Player was not found.";
@@ -900,7 +967,8 @@ namespace IdleSoccerClubMVP.Systems
                 return false;
             }
 
-            if (player.duplicateShardCount < rule.requiredDuplicates)
+            int duplicateCount = Math.Max(0, player.ownedCount - 1);
+            if (duplicateCount < rule.requiredDuplicates)
             {
                 message = string.Format("Not enough duplicate shards. Need {0}", rule.requiredDuplicates);
                 return false;
@@ -913,9 +981,9 @@ namespace IdleSoccerClubMVP.Systems
             }
 
             state.economy.gold -= rule.goldCost;
-            player.duplicateShardCount -= rule.requiredDuplicates;
+            player.ownedCount = Math.Max(1, player.ownedCount - rule.requiredDuplicates);
             player.star += 1;
-            message = string.Format("{0} promoted to {1} star", player.definitionId, player.star);
+            message = string.Format("{0} promoted to {1} star", player.playerId, player.star);
             return true;
         }
     }
@@ -955,22 +1023,22 @@ namespace IdleSoccerClubMVP.Systems
                 }
 
                 PlayerDefinition definition = pool[random.Next(0, pool.Count)];
-                OwnedPlayerState existing = state.ownedPlayers.Find(player => player.definitionId == definition.id);
+                OwnedPlayerState existing = state.ownedPlayers.Find(player => player.playerId == definition.id);
                 if (existing == null)
                 {
                     state.ownedPlayers.Add(new OwnedPlayerState
                     {
-                        instanceId = definition.id,
-                        definitionId = definition.id,
+                        playerId = definition.id,
+                        ownedCount = 1,
                         level = 1,
                         star = 1,
-                        duplicateShardCount = 0
+                        lockState = false
                     });
                     result.acquiredPlayerIds.Add(definition.id);
                 }
                 else
                 {
-                    existing.duplicateShardCount += 1;
+                    existing.ownedCount += 1;
                     result.duplicatePlayerIds.Add(definition.id);
                 }
             }
@@ -1017,23 +1085,22 @@ namespace IdleSoccerClubMVP.Systems
                 return false;
             }
 
-            OwnedPlayerState existing = state.ownedPlayers.Find(player => player.definitionId == playerDefinitionId);
+            OwnedPlayerState existing = state.ownedPlayers.Find(player => player.playerId == playerDefinitionId);
             if (existing == null)
             {
                 state.ownedPlayers.Add(new OwnedPlayerState
                 {
-                    instanceId = playerDefinitionId,
-                    definitionId = playerDefinitionId,
+                    playerId = playerDefinitionId,
+                    ownedCount = 1,
                     level = 1,
-                    star = 1,
-                    duplicateShardCount = 0
+                    star = 1
                 });
                 message = string.Format("{0} recruited", playerDefinitionId);
             }
             else
             {
-                existing.duplicateShardCount += 1;
-                message = string.Format("{0} duplicate recruited -> shards +1", playerDefinitionId);
+                existing.ownedCount += 1;
+                message = string.Format("{0} duplicate recruited -> owned +1", playerDefinitionId);
             }
 
             state.scout.currentScoutCenterCandidateIds.Remove(playerDefinitionId);
@@ -1084,16 +1151,17 @@ namespace IdleSoccerClubMVP.Systems
         {
             LeagueStageDefinition stage = configProvider.GetCurrentStage(state);
             TacticDefinition tactic = configProvider.GetTactic(state.team.selectedTacticId);
+            RuntimeTeamComputedData team = state.runtime.team;
 
-            int opponentAttack = stage != null && stage.opponentAttack > 0 ? stage.opponentAttack : Math.Max(1, (int)Math.Round((stage != null ? stage.recommendedPower : state.team.totalPower) * 0.4f));
-            int opponentDefense = stage != null && stage.opponentDefense > 0 ? stage.opponentDefense : Math.Max(1, (int)Math.Round((stage != null ? stage.recommendedPower : state.team.totalPower) * 0.35f));
-            int opponentControl = stage != null && stage.opponentControl > 0 ? stage.opponentControl : Math.Max(1, (int)Math.Round((stage != null ? stage.recommendedPower : state.team.totalPower) * 0.25f));
-            int opponentPower = stage != null && stage.opponentPower > 0 ? stage.opponentPower : Math.Max(1, stage != null ? stage.recommendedPower : state.team.totalPower);
+            int opponentAttack = stage != null && stage.opponentAttack > 0 ? stage.opponentAttack : Math.Max(1, (int)Math.Round((stage != null ? stage.recommendedPower : team.totalPower) * 0.4f));
+            int opponentDefense = stage != null && stage.opponentDefense > 0 ? stage.opponentDefense : Math.Max(1, (int)Math.Round((stage != null ? stage.recommendedPower : team.totalPower) * 0.35f));
+            int opponentControl = stage != null && stage.opponentControl > 0 ? stage.opponentControl : Math.Max(1, (int)Math.Round((stage != null ? stage.recommendedPower : team.totalPower) * 0.25f));
+            int opponentPower = stage != null && stage.opponentPower > 0 ? stage.opponentPower : Math.Max(1, stage != null ? stage.recommendedPower : team.totalPower);
 
-            float attackScore = NormalizeDelta(state.team.teamAttack, opponentDefense);
-            float defenseScore = NormalizeDelta(state.team.teamDefense, opponentAttack);
-            float controlScore = NormalizeDelta(state.team.teamControl, opponentControl);
-            float powerScore = NormalizeDelta(state.team.totalPower, opponentPower);
+            float attackScore = NormalizeDelta(team.teamAttack, opponentDefense);
+            float defenseScore = NormalizeDelta(team.teamDefense, opponentAttack);
+            float controlScore = NormalizeDelta(team.teamControl, opponentControl);
+            float powerScore = NormalizeDelta(team.totalPower, opponentPower);
             float randomSwing = (float)(random.NextDouble() * 0.16d - 0.08d);
             float matchAdvantage = attackScore * 0.30f + defenseScore * 0.25f + controlScore * 0.15f + powerScore * 0.30f + randomSwing;
 
@@ -1139,9 +1207,9 @@ namespace IdleSoccerClubMVP.Systems
             result.shotsOnTarget = shotsOnTarget;
             result.topScorerNames = goals.topScorerNames;
             result.momPlayerId = goals.momPlayerId;
-            result.teamAttack = state.team.teamAttack;
-            result.teamDefense = state.team.teamDefense;
-            result.teamControl = state.team.teamControl;
+            result.teamAttack = team.teamAttack;
+            result.teamDefense = team.teamDefense;
+            result.teamControl = team.teamControl;
             result.opponentAttack = opponentAttack;
             result.opponentDefense = opponentDefense;
             result.opponentControl = opponentControl;
@@ -1159,8 +1227,7 @@ namespace IdleSoccerClubMVP.Systems
                 baseGoalExpectation += 0.25f;
             }
 
-            int goals = Clamp(0, 5, (int)Math.Round(baseGoalExpectation + random.NextDouble() * 0.8d - 0.2d));
-            return goals;
+            return Clamp(0, 5, (int)Math.Round(baseGoalExpectation + random.NextDouble() * 0.8d - 0.2d));
         }
 
         private static GoalDistribution BuildScoringSummary(GameState state, IConfigProvider configProvider, int goalCount, System.Random random)
@@ -1168,13 +1235,18 @@ namespace IdleSoccerClubMVP.Systems
             List<ScorerCandidate> candidates = new List<ScorerCandidate>();
             for (int index = 0; index < state.team.squadPlayerIds.Count; index++)
             {
-                OwnedPlayerState ownedPlayer = state.ownedPlayers.Find(item => item.instanceId == state.team.squadPlayerIds[index]);
+                OwnedPlayerState ownedPlayer = state.ownedPlayers.Find(item => item.playerId == state.team.squadPlayerIds[index]);
                 if (ownedPlayer == null)
                 {
                     continue;
                 }
 
                 PlayerUnitData player = configProvider.BuildPlayerUnitData(ownedPlayer);
+                if (player == null)
+                {
+                    continue;
+                }
+
                 int weight = ResolveScorerWeight(player.position, player.attackContribution);
                 candidates.Add(new ScorerCandidate(player.id, player.name, player.computedPower, weight));
             }
@@ -1189,7 +1261,6 @@ namespace IdleSoccerClubMVP.Systems
 
             Dictionary<string, int> goalCounts = new Dictionary<string, int>();
             List<string> goalNames = new List<string>();
-
             for (int goalIndex = 0; goalIndex < goalCount; goalIndex++)
             {
                 ScorerCandidate scorer = SelectWeightedScorer(candidates, random);
@@ -1256,14 +1327,15 @@ namespace IdleSoccerClubMVP.Systems
 
         private static string BuildDebugBreakdown(GameState state, LeagueStageDefinition stage, TacticDefinition tactic, int opponentPower, float matchAdvantage, float winChance, int possession, int opponentShots, int opponentShotsOnTarget, GoalDistribution goals)
         {
+            RuntimeTeamComputedData team = state.runtime.team;
             StringBuilder builder = new StringBuilder();
             builder.AppendLine(string.Format("Stage: {0}", stage != null ? stage.displayName : "Unknown"));
-            builder.AppendLine(string.Format("Team line: ATK {0} / DEF {1} / CTRL {2}", state.team.teamAttack, state.team.teamDefense, state.team.teamControl));
+            builder.AppendLine(string.Format("Team line: ATK {0} / DEF {1} / CTRL {2}", team.teamAttack, team.teamDefense, team.teamControl));
             builder.AppendLine(string.Format("Opponent line: ATK {0} / DEF {1} / CTRL {2}", stage != null ? stage.opponentAttack : 0, stage != null ? stage.opponentDefense : 0, stage != null ? stage.opponentControl : 0));
-            builder.AppendLine(string.Format("Total power: {0} vs {1}", state.team.totalPower, opponentPower));
-            builder.AppendLine(string.Format("Formation fit bonus: {0:P1}", state.team.formationFitBonus));
-            builder.AppendLine(string.Format("Tactic bonus: {0:P1}", state.team.tacticBonus));
-            builder.AppendLine(string.Format("Team color bonus: {0:P1}", state.team.teamColorBonus));
+            builder.AppendLine(string.Format("Total power: {0} vs {1}", team.totalPower, opponentPower));
+            builder.AppendLine(string.Format("Formation fit bonus: {0:P1}", team.formationFitBonus));
+            builder.AppendLine(string.Format("Tactic bonus: {0:P1}", team.tacticBonus));
+            builder.AppendLine(string.Format("Team color bonus: {0:P1}", team.teamColorBonus));
             if (tactic != null)
             {
                 builder.AppendLine(string.Format("Tactic profile: {0} (ATK {1:P0} / DEF {2:P0} / POSS {3:P0} / SHOT {4:P0})", tactic.displayName, tactic.attackModifier, tactic.defenseModifier, tactic.possessionModifier, tactic.shotModifier));
@@ -1323,6 +1395,19 @@ namespace IdleSoccerClubMVP.Systems
 
     public static class FormationSlotUtility
     {
+        public static List<string> BuildSlotBlueprint(FormationDefinition formation)
+        {
+            if (formation != null && formation.slots != null && formation.slots.Length > 0)
+            {
+                return formation.slots
+                    .OrderBy(item => item.uiOrder)
+                    .Select(item => item.positionId)
+                    .ToList();
+            }
+
+            return BuildSlotBlueprint(formation != null ? formation.id : string.Empty);
+        }
+
         public static List<string> BuildSlotBlueprint(string formationId)
         {
             if (formationId == "4-3-3")
@@ -1338,5 +1423,4 @@ namespace IdleSoccerClubMVP.Systems
             return new List<string> { "GK", "DF", "DF", "DF", "DF", "MF", "MF", "MF", "MF", "FW", "FW" };
         }
     }
-
 }

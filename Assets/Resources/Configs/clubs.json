@@ -1,0 +1,10 @@
+{
+  "clubs": [
+    { "id": "seoul_fc", "displayName": "Seoul FC", "iconKey": "club_seoul_fc" },
+    { "id": "busan_united", "displayName": "Busan United", "iconKey": "club_busan_united" },
+    { "id": "incheon_city", "displayName": "Incheon City", "iconKey": "club_incheon_city" },
+    { "id": "rio_waves", "displayName": "Rio Waves", "iconKey": "club_rio_waves" },
+    { "id": "london_blue", "displayName": "London Blue", "iconKey": "club_london_blue" },
+    { "id": "madrid_sun", "displayName": "Madrid Sun", "iconKey": "club_madrid_sun" }
+  ]
+}

@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using IdleSoccerClubMVP.Core.Commands;
 
 namespace IdleSoccerClubMVP.Data.Models
 {
     public static class GameConstants
     {
-        public const string SaveVersion = "0.2.0";
+        public const string SaveVersion = "0.3.0";
         public const string LoopStateWarmup = "warmup";
         public const string LoopStateMatch = "league_match";
         public const string ClubAxisId = "club";
@@ -37,13 +38,6 @@ namespace IdleSoccerClubMVP.Data.Models
         public string lastSavedUtc = string.Empty;
         public string lastClosedUtc = string.Empty;
         public string lastIdleClaimUtc = string.Empty;
-        public int pendingOfflineSeconds;
-        public int pendingOfflineGold;
-        public int pendingOfflinePlayerExp;
-        public int pendingOfflineGearMaterial;
-        public int pendingOfflineScoutCurrency;
-        public int pendingOfflineFacilityMaterial;
-        public int pendingOfflinePremiumCurrency;
         public EconomyState economy = new EconomyState();
         public TeamState team = new TeamState();
         public FacilityState facilities = new FacilityState();
@@ -52,6 +46,7 @@ namespace IdleSoccerClubMVP.Data.Models
         public ActiveMatchState activeMatch = new ActiveMatchState();
         public MatchResultData lastMatch = new MatchResultData();
         public List<OwnedPlayerState> ownedPlayers = new List<OwnedPlayerState>();
+        public RuntimeState runtime = new RuntimeState();
         public List<string> debugLogs = new List<string>();
     }
 
@@ -72,14 +67,6 @@ namespace IdleSoccerClubMVP.Data.Models
         public List<string> squadPlayerIds = new List<string>();
         public string selectedFormationId = "4-4-2";
         public string selectedTacticId = "balance";
-        public List<string> activeTeamColorIds = new List<string>();
-        public int teamAttack;
-        public int teamDefense;
-        public int teamControl;
-        public float formationFitBonus;
-        public float tacticBonus;
-        public float teamColorBonus;
-        public int totalPower;
     }
 
     [Serializable]
@@ -95,12 +82,14 @@ namespace IdleSoccerClubMVP.Data.Models
     public sealed class LeagueProgressData
     {
         public string currentLeagueId = "league_09";
-        public int currentStageIndex;
-        public int highestClearedStageIndex = -1;
+        public string currentStageId = "league_09_stage_01";
         public string lastClearedStageId = string.Empty;
         public string currentWarmupStageId = "league_09_stage_01";
         public string loopStateId = GameConstants.LoopStateWarmup;
         public bool autoRunEnabled;
+
+        public int legacyCurrentStageIndex = -1;
+        public int legacyHighestClearedStageIndex = -1;
     }
 
     [Serializable]
@@ -153,11 +142,52 @@ namespace IdleSoccerClubMVP.Data.Models
     [Serializable]
     public sealed class OwnedPlayerState
     {
-        public string instanceId = string.Empty;
-        public string definitionId = string.Empty;
+        public string playerId = string.Empty;
+        public int ownedCount = 1;
         public int level = 1;
         public int star = 1;
-        public int duplicateShardCount;
+        public bool lockState;
+    }
+
+    [Serializable]
+    public sealed class RuntimeState
+    {
+        public RuntimeTeamComputedData team = new RuntimeTeamComputedData();
+        public RuntimeMatchPreviewData matchPreview = new RuntimeMatchPreviewData();
+        public RuntimeOfflineRewardPreviewData offlineRewardPreview = new RuntimeOfflineRewardPreviewData();
+    }
+
+    [Serializable]
+    public sealed class RuntimeTeamComputedData
+    {
+        public List<string> activeTeamColorIds = new List<string>();
+        public int teamAttack;
+        public int teamDefense;
+        public int teamControl;
+        public int totalPower;
+        public float formationFitBonus;
+        public float tacticBonus;
+        public float teamColorBonus;
+    }
+
+    [Serializable]
+    public sealed class RuntimeMatchPreviewData
+    {
+        public string stageId = string.Empty;
+        public int opponentAttack;
+        public int opponentDefense;
+        public int opponentControl;
+        public int opponentPower;
+        public float estimatedWinChance;
+    }
+
+    [Serializable]
+    public sealed class RuntimeOfflineRewardPreviewData
+    {
+        public int elapsedSeconds;
+        public string appliedStageId = string.Empty;
+        public RewardGrant reward = new RewardGrant();
+        public string summary = string.Empty;
     }
 
     [Serializable]
@@ -172,14 +202,18 @@ namespace IdleSoccerClubMVP.Data.Models
         public PlayerStatBlock baseStats = new PlayerStatBlock();
         public string club = string.Empty;
         public string nationality = string.Empty;
-        public string preferredFormation = string.Empty;
+        public List<string> preferredFormations = new List<string>();
         public string preferredRole = string.Empty;
-        public List<string> traits = new List<string>();
+        public string passiveId = string.Empty;
+        public string passiveDisplayName = string.Empty;
+        public string portraitKey = string.Empty;
         public int attackContribution;
         public int defenseContribution;
         public int controlContribution;
         public int computedPower;
         public int duplicateShardCount;
+        public int ownedCount;
+        public bool isLocked;
     }
 
     [Serializable]
@@ -187,6 +221,7 @@ namespace IdleSoccerClubMVP.Data.Models
     {
         public int attack;
         public int defense;
-        public int control;
+        public int pass;
+        public int stamina;
     }
 }

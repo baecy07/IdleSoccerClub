@@ -51,17 +51,29 @@ namespace IdleSoccerClubMVP.Services.Interfaces
     public interface IConfigProvider
     {
         PlayersConfigRoot Players { get; }
+        ClubsConfigRoot Clubs { get; }
+        NationalitiesConfigRoot Nationalities { get; }
+        PassivesConfigRoot Passives { get; }
+        FormationsConfigRoot Formations { get; }
+        TacticsConfigRoot Tactics { get; }
+        TeamColorsConfigRoot TeamColors { get; }
+        FacilitiesConfigRoot Facilities { get; }
         LeagueConfigRoot Leagues { get; }
         ScoutConfigRoot Scout { get; }
         ProgressionConfigRoot Progression { get; }
         TeamPlayConfigRoot TeamPlay { get; }
 
         PlayerDefinition GetPlayerDefinition(string id);
+        ClubDefinition GetClub(string id);
+        NationalityDefinition GetNationality(string id);
+        PassiveDefinition GetPassive(string id);
         LeagueDefinition GetLeague(string id);
+        LeagueStageDefinition GetStage(string id);
         LeagueStageDefinition GetCurrentStage(GameState state);
         LeagueDefinition GetNextLeague(string currentLeagueId);
         FormationDefinition GetFormation(string id);
         TacticDefinition GetTactic(string id);
+        List<TeamColorTierDefinition> GetTeamColorRules(string axisId);
         FacilityBalanceDefinition GetFacility(string facilityId);
         ScoutLevelDefinition GetScoutLevel(int level);
         StarPromotionRuleDefinition GetStarPromotionRule(int currentStar);

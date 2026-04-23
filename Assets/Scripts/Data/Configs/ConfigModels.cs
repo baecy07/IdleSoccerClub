@@ -9,22 +9,93 @@ namespace IdleSoccerClubMVP.Data.Configs
     }
 
     [Serializable]
+    public sealed class ClubsConfigRoot
+    {
+        public ClubDefinition[] clubs;
+    }
+
+    [Serializable]
+    public sealed class NationalitiesConfigRoot
+    {
+        public NationalityDefinition[] nationalities;
+    }
+
+    [Serializable]
+    public sealed class PassivesConfigRoot
+    {
+        public PassiveDefinition[] passives;
+    }
+
+    [Serializable]
+    public sealed class FormationsConfigRoot
+    {
+        public FormationDefinition[] formations;
+    }
+
+    [Serializable]
+    public sealed class TacticsConfigRoot
+    {
+        public TacticDefinition[] tactics;
+    }
+
+    [Serializable]
+    public sealed class TeamColorsConfigRoot
+    {
+        public TeamColorAxisDefinition[] axes;
+    }
+
+    [Serializable]
+    public sealed class FacilitiesConfigRoot
+    {
+        public FacilityBalanceDefinition[] facilities;
+    }
+
+    [Serializable]
     public sealed class PlayerDefinition
     {
         public string id;
         public string displayName;
         public string rarityId;
-        public string positionId;
-        public string clubId;
+        public string mainPositionId;
+        public string originalClubId;
         public string nationalityId;
-        public string preferredFormationId;
+        public string[] preferredFormationIds;
         public string preferredRoleId;
-        public int basePower;
-        public int attack;
-        public int defense;
-        public int control;
+        public int baseAttack;
+        public int baseDefense;
+        public int basePass;
+        public int baseStamina;
+        public string passiveId;
+        public string portraitKey;
         public bool isStarter;
-        public string[] traits;
+    }
+
+    [Serializable]
+    public sealed class ClubDefinition
+    {
+        public string id;
+        public string displayName;
+        public string iconKey;
+    }
+
+    [Serializable]
+    public sealed class NationalityDefinition
+    {
+        public string id;
+        public string displayName;
+        public string iconKey;
+    }
+
+    [Serializable]
+    public sealed class PassiveDefinition
+    {
+        public string id;
+        public string displayName;
+        public string description;
+        public float attackBonusPercent;
+        public float defenseBonusPercent;
+        public float controlBonusPercent;
+        public string[] preferredTacticIds;
     }
 
     [Serializable]
@@ -38,12 +109,7 @@ namespace IdleSoccerClubMVP.Data.Configs
     {
         public string id;
         public string displayName;
-        public int promotionRewardGold;
-        public int promotionRewardPlayerExp;
-        public int promotionRewardGearMaterial;
-        public int promotionRewardFacilityMaterial;
-        public int promotionRewardScoutCurrency;
-        public int promotionRewardPremiumCurrency;
+        public RewardDefinition promotionReward;
         public LeagueStageDefinition[] stages;
     }
 
@@ -51,18 +117,26 @@ namespace IdleSoccerClubMVP.Data.Configs
     public sealed class LeagueStageDefinition
     {
         public string id;
+        public string leagueId;
+        public int stageOrder;
         public string displayName;
         public int recommendedPower;
-        public int rewardGold;
-        public int rewardPlayerExp;
-        public int rewardGearMaterial;
-        public int rewardFacilityMaterial;
-        public int rewardScoutCurrency;
-        public int rewardPremiumCurrency;
+        public RewardDefinition victoryReward;
         public int opponentAttack;
         public int opponentDefense;
         public int opponentControl;
         public int opponentPower;
+    }
+
+    [Serializable]
+    public sealed class RewardDefinition
+    {
+        public int gold;
+        public int playerExp;
+        public int gearMaterial;
+        public int facilityMaterial;
+        public int scoutCurrency;
+        public int premiumCurrency;
     }
 
     [Serializable]
@@ -142,6 +216,7 @@ namespace IdleSoccerClubMVP.Data.Configs
     public sealed class FacilityBalanceDefinition
     {
         public string facilityId;
+        public string displayName;
         public FacilityLevelDefinition[] levels;
     }
 
@@ -149,7 +224,8 @@ namespace IdleSoccerClubMVP.Data.Configs
     public sealed class FacilityLevelDefinition
     {
         public int level;
-        public int upgradeCost;
+        public int goldCost;
+        public int facilityMaterialCost;
         public float primaryValue;
         public float secondaryValue;
     }
@@ -172,6 +248,16 @@ namespace IdleSoccerClubMVP.Data.Configs
         public float defenseBonus;
         public float controlBonus;
         public float preferredBonus;
+        public FormationSlotDefinition[] slots;
+    }
+
+    [Serializable]
+    public sealed class FormationSlotDefinition
+    {
+        public string slotId;
+        public string positionId;
+        public string preferredRoleHint;
+        public int uiOrder;
     }
 
     [Serializable]
@@ -184,6 +270,20 @@ namespace IdleSoccerClubMVP.Data.Configs
         public float defenseModifier;
         public float possessionModifier;
         public float shotModifier;
+    }
+
+    [Serializable]
+    public sealed class TeamColorAxisDefinition
+    {
+        public string axisId;
+        public TeamColorTierDefinition[] tiers;
+    }
+
+    [Serializable]
+    public sealed class TeamColorTierDefinition
+    {
+        public int requiredCount;
+        public float bonusPercent;
     }
 
     [Serializable]

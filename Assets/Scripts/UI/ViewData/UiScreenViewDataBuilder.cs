@@ -60,21 +60,23 @@ namespace IdleSoccerClubMVP.UI.ViewData
 
         public static HomeScreenViewData BuildHome(GameState state, LeagueStageDefinition currentStage, float goldPerMinute, string quickHint, string teamColorSummary)
         {
+            RuntimeTeamComputedData team = state.runtime.team;
+            int stageOrder = currentStage != null && currentStage.stageOrder > 0 ? currentStage.stageOrder : 1;
             StringBuilder statusBuilder = new StringBuilder();
-            statusBuilder.AppendLine(string.Format("League {0} / Stage {1}", state.league.currentLeagueId, state.league.currentStageIndex + 1));
+            statusBuilder.AppendLine(string.Format("League {0} / Stage {1}", state.league.currentLeagueId, stageOrder));
             statusBuilder.AppendLine(string.Format("Current loop: {0}", state.league.loopStateId));
             statusBuilder.AppendLine(string.Format("Recommended power: {0}", NumberNotationFormatter.FormatForUi(currentStage != null ? currentStage.recommendedPower : 0)));
-            statusBuilder.AppendLine(string.Format("Team power: {0}", NumberNotationFormatter.FormatForUi(state.team.totalPower)));
+            statusBuilder.AppendLine(string.Format("Team power: {0}", NumberNotationFormatter.FormatForUi(team.totalPower)));
             statusBuilder.AppendLine(string.Format("Combat line: ATK {0} / DEF {1} / CTRL {2}",
-                NumberNotationFormatter.FormatForUi(state.team.teamAttack),
-                NumberNotationFormatter.FormatForUi(state.team.teamDefense),
-                NumberNotationFormatter.FormatForUi(state.team.teamControl)));
+                NumberNotationFormatter.FormatForUi(team.teamAttack),
+                NumberNotationFormatter.FormatForUi(team.teamDefense),
+                NumberNotationFormatter.FormatForUi(team.teamControl)));
             statusBuilder.AppendLine(string.Format("Auto run: {0}", state.league.autoRunEnabled ? "ON" : "OFF"));
 
             string quickText = string.Format("Gold/min {0} | XP bank {1} | Pending offline {2}m | Next focus: {3}",
                 NumberNotationFormatter.FormatForUi((long)goldPerMinute),
                 NumberNotationFormatter.FormatForUi(state.economy.playerExp),
-                state.pendingOfflineSeconds / 60,
+                state.runtime.offlineRewardPreview.elapsedSeconds / 60,
                 quickHint);
 
             StringBuilder summaryBuilder = new StringBuilder();
@@ -100,16 +102,17 @@ namespace IdleSoccerClubMVP.UI.ViewData
 
         public static SquadScreenViewData BuildSquad(GameState state, int unlockedFormationTacticCount, string teamColorSummary, string tacticSummary, string formationFitSummary)
         {
+            RuntimeTeamComputedData team = state.runtime.team;
             string header = string.Format("Formation {0} | Tactic {1} | Power {2}",
                 state.team.selectedFormationId,
                 state.team.selectedTacticId,
-                NumberNotationFormatter.FormatForUi(state.team.totalPower));
+                NumberNotationFormatter.FormatForUi(team.totalPower));
 
             StringBuilder footerBuilder = new StringBuilder();
             footerBuilder.AppendLine(string.Format("Combat line: ATK {0} / DEF {1} / CTRL {2}",
-                NumberNotationFormatter.FormatForUi(state.team.teamAttack),
-                NumberNotationFormatter.FormatForUi(state.team.teamDefense),
-                NumberNotationFormatter.FormatForUi(state.team.teamControl)));
+                NumberNotationFormatter.FormatForUi(team.teamAttack),
+                NumberNotationFormatter.FormatForUi(team.teamDefense),
+                NumberNotationFormatter.FormatForUi(team.teamControl)));
             footerBuilder.AppendLine(string.Format("Active team colors: {0}", teamColorSummary));
             footerBuilder.AppendLine(string.Format("Tactic effect: {0}", tacticSummary));
             footerBuilder.AppendLine(string.Format("Formation fit: {0}", formationFitSummary));
@@ -131,7 +134,7 @@ namespace IdleSoccerClubMVP.UI.ViewData
         {
             return string.Format(
                 "Dummy PvE lanes built for UI validation. Team power {0}, XP {1}, gear {2}. Each lane keeps reward identity visible for later system wiring.",
-                NumberNotationFormatter.FormatForUi(state.team.totalPower),
+                NumberNotationFormatter.FormatForUi(state.runtime.team.totalPower),
                 NumberNotationFormatter.FormatForUi(state.economy.playerExp),
                 NumberNotationFormatter.FormatForUi(state.economy.gearMaterial));
         }

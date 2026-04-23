@@ -1,0 +1,48 @@
+{
+  "facilities": [
+    {
+      "facilityId": "training_ground",
+      "displayName": "Training Ground",
+      "levels": [
+        { "level": 1, "goldCost": 0, "facilityMaterialCost": 0, "primaryValue": 10, "secondaryValue": 0 },
+        { "level": 2, "goldCost": 90, "facilityMaterialCost": 30, "primaryValue": 15, "secondaryValue": 0 },
+        { "level": 3, "goldCost": 165, "facilityMaterialCost": 55, "primaryValue": 20, "secondaryValue": 0 },
+        { "level": 4, "goldCost": 255, "facilityMaterialCost": 85, "primaryValue": 25, "secondaryValue": 0 },
+        { "level": 5, "goldCost": 375, "facilityMaterialCost": 125, "primaryValue": 30, "secondaryValue": 0 }
+      ]
+    },
+    {
+      "facilityId": "scout_center",
+      "displayName": "Scout Center",
+      "levels": [
+        { "level": 1, "goldCost": 0, "facilityMaterialCost": 0, "primaryValue": 3, "secondaryValue": 0 },
+        { "level": 2, "goldCost": 105, "facilityMaterialCost": 35, "primaryValue": 3, "secondaryValue": 0 },
+        { "level": 3, "goldCost": 195, "facilityMaterialCost": 65, "primaryValue": 4, "secondaryValue": 0 },
+        { "level": 4, "goldCost": 285, "facilityMaterialCost": 95, "primaryValue": 4, "secondaryValue": 0 },
+        { "level": 5, "goldCost": 420, "facilityMaterialCost": 140, "primaryValue": 5, "secondaryValue": 0 }
+      ]
+    },
+    {
+      "facilityId": "club_house",
+      "displayName": "Club House",
+      "levels": [
+        { "level": 1, "goldCost": 0, "facilityMaterialCost": 0, "primaryValue": 0.00, "secondaryValue": 480 },
+        { "level": 2, "goldCost": 84, "facilityMaterialCost": 28, "primaryValue": 0.08, "secondaryValue": 540 },
+        { "level": 3, "goldCost": 156, "facilityMaterialCost": 52, "primaryValue": 0.15, "secondaryValue": 600 },
+        { "level": 4, "goldCost": 234, "facilityMaterialCost": 78, "primaryValue": 0.24, "secondaryValue": 660 },
+        { "level": 5, "goldCost": 330, "facilityMaterialCost": 110, "primaryValue": 0.35, "secondaryValue": 720 }
+      ]
+    },
+    {
+      "facilityId": "tactic_lab",
+      "displayName": "Tactic Lab",
+      "levels": [
+        { "level": 1, "goldCost": 0, "facilityMaterialCost": 0, "primaryValue": 1, "secondaryValue": 0 },
+        { "level": 2, "goldCost": 96, "facilityMaterialCost": 32, "primaryValue": 2, "secondaryValue": 0 },
+        { "level": 3, "goldCost": 174, "facilityMaterialCost": 58, "primaryValue": 2, "secondaryValue": 0 },
+        { "level": 4, "goldCost": 258, "facilityMaterialCost": 86, "primaryValue": 3, "secondaryValue": 0 },
+        { "level": 5, "goldCost": 360, "facilityMaterialCost": 120, "primaryValue": 3, "secondaryValue": 0 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "tactics": [
+    { "id": "balance", "displayName": "Balance", "teamPowerBonus": 0.02, "attackModifier": 0.02, "defenseModifier": 0.02, "possessionModifier": 0.02, "shotModifier": 0.00 },
+    { "id": "possession", "displayName": "Possession", "teamPowerBonus": 0.015, "attackModifier": 0.00, "defenseModifier": 0.01, "possessionModifier": 0.06, "shotModifier": 0.01 },
+    { "id": "counter", "displayName": "Counter", "teamPowerBonus": 0.018, "attackModifier": 0.05, "defenseModifier": -0.01, "possessionModifier": -0.05, "shotModifier": 0.03 }
+  ]
+}

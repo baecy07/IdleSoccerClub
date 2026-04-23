@@ -1,0 +1,70 @@
+{
+  "formations": [
+    {
+      "id": "4-4-2",
+      "displayName": "4-4-2",
+      "teamPowerBonus": 0.02,
+      "attackBonus": 0.01,
+      "defenseBonus": 0.03,
+      "controlBonus": 0.00,
+      "preferredBonus": 0.04,
+      "slots": [
+        { "slotId": "gk", "positionId": "GK", "preferredRoleHint": "shot_stopper", "uiOrder": 0 },
+        { "slotId": "df_l", "positionId": "DF", "preferredRoleHint": "full_back", "uiOrder": 1 },
+        { "slotId": "df_lc", "positionId": "DF", "preferredRoleHint": "anchor", "uiOrder": 2 },
+        { "slotId": "df_rc", "positionId": "DF", "preferredRoleHint": "anchor", "uiOrder": 3 },
+        { "slotId": "df_r", "positionId": "DF", "preferredRoleHint": "full_back", "uiOrder": 4 },
+        { "slotId": "mf_l", "positionId": "MF", "preferredRoleHint": "engine", "uiOrder": 5 },
+        { "slotId": "mf_lc", "positionId": "MF", "preferredRoleHint": "carrier", "uiOrder": 6 },
+        { "slotId": "mf_rc", "positionId": "MF", "preferredRoleHint": "creator", "uiOrder": 7 },
+        { "slotId": "mf_r", "positionId": "MF", "preferredRoleHint": "engine", "uiOrder": 8 },
+        { "slotId": "fw_l", "positionId": "FW", "preferredRoleHint": "finisher", "uiOrder": 9 },
+        { "slotId": "fw_r", "positionId": "FW", "preferredRoleHint": "inside_forward", "uiOrder": 10 }
+      ]
+    },
+    {
+      "id": "4-3-3",
+      "displayName": "4-3-3",
+      "teamPowerBonus": 0.03,
+      "attackBonus": 0.04,
+      "defenseBonus": -0.01,
+      "controlBonus": 0.01,
+      "preferredBonus": 0.05,
+      "slots": [
+        { "slotId": "gk", "positionId": "GK", "preferredRoleHint": "shot_stopper", "uiOrder": 0 },
+        { "slotId": "df_l", "positionId": "DF", "preferredRoleHint": "full_back", "uiOrder": 1 },
+        { "slotId": "df_lc", "positionId": "DF", "preferredRoleHint": "anchor", "uiOrder": 2 },
+        { "slotId": "df_rc", "positionId": "DF", "preferredRoleHint": "ball_playing", "uiOrder": 3 },
+        { "slotId": "df_r", "positionId": "DF", "preferredRoleHint": "full_back", "uiOrder": 4 },
+        { "slotId": "mf_l", "positionId": "MF", "preferredRoleHint": "engine", "uiOrder": 5 },
+        { "slotId": "mf_c", "positionId": "MF", "preferredRoleHint": "creator", "uiOrder": 6 },
+        { "slotId": "mf_r", "positionId": "MF", "preferredRoleHint": "playmaker", "uiOrder": 7 },
+        { "slotId": "fw_l", "positionId": "FW", "preferredRoleHint": "inside_forward", "uiOrder": 8 },
+        { "slotId": "fw_c", "positionId": "FW", "preferredRoleHint": "finisher", "uiOrder": 9 },
+        { "slotId": "fw_r", "positionId": "FW", "preferredRoleHint": "free_roam", "uiOrder": 10 }
+      ]
+    },
+    {
+      "id": "4-2-3-1",
+      "displayName": "4-2-3-1",
+      "teamPowerBonus": 0.025,
+      "attackBonus": 0.02,
+      "defenseBonus": 0.02,
+      "controlBonus": 0.02,
+      "preferredBonus": 0.05,
+      "slots": [
+        { "slotId": "gk", "positionId": "GK", "preferredRoleHint": "sweeper", "uiOrder": 0 },
+        { "slotId": "df_l", "positionId": "DF", "preferredRoleHint": "full_back", "uiOrder": 1 },
+        { "slotId": "df_lc", "positionId": "DF", "preferredRoleHint": "anchor", "uiOrder": 2 },
+        { "slotId": "df_rc", "positionId": "DF", "preferredRoleHint": "anchor", "uiOrder": 3 },
+        { "slotId": "df_r", "positionId": "DF", "preferredRoleHint": "full_back", "uiOrder": 4 },
+        { "slotId": "mf_lc", "positionId": "MF", "preferredRoleHint": "engine", "uiOrder": 5 },
+        { "slotId": "mf_rc", "positionId": "MF", "preferredRoleHint": "carrier", "uiOrder": 6 },
+        { "slotId": "am_l", "positionId": "MF", "preferredRoleHint": "creator", "uiOrder": 7 },
+        { "slotId": "am_c", "positionId": "MF", "preferredRoleHint": "playmaker", "uiOrder": 8 },
+        { "slotId": "am_r", "positionId": "MF", "preferredRoleHint": "inside_forward", "uiOrder": 9 },
+        { "slotId": "fw_c", "positionId": "FW", "preferredRoleHint": "finisher", "uiOrder": 10 }
+      ]
+    }
+  ]
+}

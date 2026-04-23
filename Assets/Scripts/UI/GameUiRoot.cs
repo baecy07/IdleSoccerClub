@@ -815,7 +815,7 @@ namespace IdleSoccerClubMVP.UI
 
         private void OpenPlayerPopup(string playerId)
         {
-            OwnedPlayerState ownedPlayer = progressService.State.ownedPlayers.Find(item => item.instanceId == playerId);
+            OwnedPlayerState ownedPlayer = progressService.State.ownedPlayers.Find(item => item.playerId == playerId);
             if (ownedPlayer == null)
             {
                 OpenToastPopup("Player Missing", "The selected player could not be found.");
@@ -836,8 +836,8 @@ namespace IdleSoccerClubMVP.UI
                 NumberNotationFormatter.FormatForUi(player.defenseContribution),
                 NumberNotationFormatter.FormatForUi(player.controlContribution)));
             builder.AppendLine(string.Format("Club {0} | Nation {1}", player.club, player.nationality));
-            builder.AppendLine(string.Format("Preferred formation {0}", player.preferredFormation));
-            builder.AppendLine(string.Format("Traits {0}", player.traits.Count == 0 ? "-" : string.Join(", ", player.traits.ToArray())));
+            builder.AppendLine(string.Format("Preferred formations {0}", player.preferredFormations.Count == 0 ? "-" : string.Join(", ", player.preferredFormations.ToArray())));
+            builder.AppendLine(string.Format("Passive {0}", string.IsNullOrEmpty(player.passiveDisplayName) ? "-" : player.passiveDisplayName));
             builder.AppendLine();
             builder.AppendLine(string.Format("Next level cost: {0}", nextLevelCost != null
                 ? string.Format("{0} gold + {1} XP", NumberNotationFormatter.FormatForUi(nextLevelCost.goldCost), NumberNotationFormatter.FormatForUi(nextLevelCost.playerExpCost))
@@ -1029,8 +1029,8 @@ namespace IdleSoccerClubMVP.UI
         {
             FacilityBalanceDefinition definition = configProvider.GetFacility(facilityId);
             int level = GetFacilityLevel(facilityId);
-            int nextCost = level < definition.levels.Length ? definition.levels[level].upgradeCost : 0;
-            int goldCost = nextCost * 3;
+            int nextFacilityCost = level < definition.levels.Length ? definition.levels[level].facilityMaterialCost : 0;
+            int goldCost = level < definition.levels.Length ? definition.levels[level].goldCost : 0;
 
             return new FacilityCardState(
                 facilityId,
@@ -1038,9 +1038,9 @@ namespace IdleSoccerClubMVP.UI
                 level,
                 BuildFacilityEffectText(facilityId, level),
                 level >= definition.levels.Length ? "Max level reached" : BuildFacilityEffectText(facilityId, level + 1),
-                level >= definition.levels.Length ? "MAX" : string.Format("{0} facility + {1} gold", nextCost.ToString("N0"), goldCost.ToString("N0")),
+                level >= definition.levels.Length ? "MAX" : string.Format("{0} facility + {1} gold", nextFacilityCost.ToString("N0"), goldCost.ToString("N0")),
                 GetFacilityHighlight(facilityId),
-                level < definition.levels.Length && progressService.State.economy.facilityMaterial >= nextCost && progressService.State.economy.gold >= goldCost);
+                level < definition.levels.Length && progressService.State.economy.facilityMaterial >= nextFacilityCost && progressService.State.economy.gold >= goldCost);
         }
 
         private int GetFacilityLevel(string facilityId)
@@ -1158,7 +1158,7 @@ namespace IdleSoccerClubMVP.UI
 
         private string BuildTeamColorSummary()
         {
-            List<string> activeIds = progressService.State.team.activeTeamColorIds;
+            List<string> activeIds = progressService.State.runtime.team.activeTeamColorIds;
             return activeIds.Count == 0 ? "None" : string.Join(", ", activeIds.ToArray());
         }
 
@@ -1180,7 +1180,7 @@ namespace IdleSoccerClubMVP.UI
             List<PlayerUnitData> squadPlayers = BuildOwnedPlayerUnits()
                 .Where(player => progressService.State.team.squadPlayerIds.Contains(player.id))
                 .ToList();
-            int preferredMatches = squadPlayers.Count(player => player.preferredFormation == progressService.State.team.selectedFormationId);
+            int preferredMatches = squadPlayers.Count(player => player.preferredFormations.Contains(progressService.State.team.selectedFormationId));
             int ratio = squadPlayers.Count == 0 ? 0 : Mathf.RoundToInt(preferredMatches / (float)squadPlayers.Count * 100f);
             if (ratio >= 90)
             {
@@ -1234,7 +1234,7 @@ namespace IdleSoccerClubMVP.UI
         private string BuildAlertSummary()
         {
             StringBuilder builder = new StringBuilder();
-            builder.AppendLine(string.Format("- Offline reward ready: {0}", progressService.State.pendingOfflineSeconds > 0 ? "YES" : "NO"));
+            builder.AppendLine(string.Format("- Offline reward ready: {0}", progressService.State.runtime.offlineRewardPreview.elapsedSeconds > 0 ? "YES" : "NO"));
             builder.AppendLine(string.Format("- Facility upgrade ready: {0}", IsAnyFacilityUpgradeable() ? "YES" : "NO"));
             builder.AppendLine(string.Format("- Player growth ready: {0}", IsAnyPlayerGrowthAvailable() ? "YES" : "NO"));
             builder.AppendLine(string.Format("- Scout center ready: {0}", IsScoutCenterReady() ? "YES" : "NO"));
@@ -1273,7 +1273,7 @@ namespace IdleSoccerClubMVP.UI
                 case ScreenSquad:
                     return IsAnyPlayerGrowthAvailable() ? "UP" : string.Empty;
                 case ScreenHome:
-                    return progressService.State.pendingOfflineSeconds > 0 ? "Reward" : string.Empty;
+                    return progressService.State.runtime.offlineRewardPreview.elapsedSeconds > 0 ? "Reward" : string.Empty;
                 case ScreenShop:
                     return "Free";
                 case ScreenExpedition:
@@ -1304,7 +1304,7 @@ namespace IdleSoccerClubMVP.UI
 
         private bool HasAnyAlert()
         {
-            return progressService.State.pendingOfflineSeconds > 0 || IsAnyFacilityUpgradeable() || IsAnyPlayerGrowthAvailable() || IsScoutCenterReady();
+            return progressService.State.runtime.offlineRewardPreview.elapsedSeconds > 0 || IsAnyFacilityUpgradeable() || IsAnyPlayerGrowthAvailable() || IsScoutCenterReady();
         }
 
         private bool IsAnyFacilityUpgradeable()
@@ -1315,8 +1315,8 @@ namespace IdleSoccerClubMVP.UI
             {
                 FacilityBalanceDefinition definition = configProvider.GetFacility(facilityIds[index]);
                 int level = GetFacilityLevel(facilityIds[index]);
-                int materialCost = level < definition.levels.Length ? definition.levels[level].upgradeCost : 0;
-                int goldCost = materialCost * 3;
+                int materialCost = level < definition.levels.Length ? definition.levels[level].facilityMaterialCost : 0;
+                int goldCost = level < definition.levels.Length ? definition.levels[level].goldCost : 0;
                 if (level < definition.levels.Length && state.economy.facilityMaterial >= materialCost && state.economy.gold >= goldCost)
                 {
                     return true;
@@ -1334,8 +1334,8 @@ namespace IdleSoccerClubMVP.UI
             {
                 FacilityBalanceDefinition definition = configProvider.GetFacility(facilityIds[index]);
                 int level = GetFacilityLevel(facilityIds[index]);
-                int materialCost = level < definition.levels.Length ? definition.levels[level].upgradeCost : 0;
-                int goldCost = materialCost * 3;
+                int materialCost = level < definition.levels.Length ? definition.levels[level].facilityMaterialCost : 0;
+                int goldCost = level < definition.levels.Length ? definition.levels[level].goldCost : 0;
                 if (level < definition.levels.Length && progressService.State.economy.facilityMaterial >= materialCost && progressService.State.economy.gold >= goldCost)
                 {
                     count++;
@@ -1424,7 +1424,7 @@ namespace IdleSoccerClubMVP.UI
 
         private List<ExpeditionViewData> BuildExpeditions()
         {
-            int basePower = progressService.State.team.totalPower;
+            int basePower = progressService.State.runtime.team.totalPower;
             return new List<ExpeditionViewData>
             {
                 new ExpeditionViewData("Gold Run", "Collect gold with a simple PvE lane card.", Mathf.Max(200, basePower - 120), 3, "2-4"),

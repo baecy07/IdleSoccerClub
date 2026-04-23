@@ -1,0 +1,20 @@
+{
+  "passives": [
+    { "id": "steady_hands", "displayName": "Steady Hands", "description": "Reliable shot stopping under pressure.", "attackBonusPercent": 0.00, "defenseBonusPercent": 0.08, "controlBonusPercent": 0.03, "preferredTacticIds": [ "balance" ] },
+    { "id": "marking", "displayName": "Marking", "description": "Improves close defending.", "attackBonusPercent": 0.00, "defenseBonusPercent": 0.06, "controlBonusPercent": 0.00, "preferredTacticIds": [ "balance", "counter" ] },
+    { "id": "cover", "displayName": "Cover", "description": "Strong recovery positioning.", "attackBonusPercent": 0.00, "defenseBonusPercent": 0.05, "controlBonusPercent": 0.02, "preferredTacticIds": [ "balance" ] },
+    { "id": "build_up", "displayName": "Build Up", "description": "Calm distribution from the back.", "attackBonusPercent": 0.01, "defenseBonusPercent": 0.02, "controlBonusPercent": 0.05, "preferredTacticIds": [ "possession" ] },
+    { "id": "overlap", "displayName": "Overlap", "description": "Adds width and support runs.", "attackBonusPercent": 0.04, "defenseBonusPercent": 0.00, "controlBonusPercent": 0.03, "preferredTacticIds": [ "counter" ] },
+    { "id": "engine", "displayName": "Engine", "description": "Keeps tempo high in midfield.", "attackBonusPercent": 0.01, "defenseBonusPercent": 0.01, "controlBonusPercent": 0.05, "preferredTacticIds": [ "balance", "possession" ] },
+    { "id": "vision", "displayName": "Vision", "description": "Sees passing lanes early.", "attackBonusPercent": 0.01, "defenseBonusPercent": 0.00, "controlBonusPercent": 0.07, "preferredTacticIds": [ "possession" ] },
+    { "id": "through_pass", "displayName": "Through Pass", "description": "Boosts final-third creation.", "attackBonusPercent": 0.03, "defenseBonusPercent": 0.00, "controlBonusPercent": 0.06, "preferredTacticIds": [ "possession", "counter" ] },
+    { "id": "tempo", "displayName": "Tempo", "description": "Controls rhythm of the attack.", "attackBonusPercent": 0.03, "defenseBonusPercent": 0.00, "controlBonusPercent": 0.05, "preferredTacticIds": [ "balance", "possession" ] },
+    { "id": "poacher", "displayName": "Poacher", "description": "Finds goals in the box.", "attackBonusPercent": 0.08, "defenseBonusPercent": 0.00, "controlBonusPercent": 0.00, "preferredTacticIds": [ "counter" ] },
+    { "id": "clinical", "displayName": "Clinical", "description": "Converts chances efficiently.", "attackBonusPercent": 0.09, "defenseBonusPercent": 0.00, "controlBonusPercent": 0.01, "preferredTacticIds": [ "counter", "balance" ] },
+    { "id": "killer_instinct", "displayName": "Killer Instinct", "description": "Deadly in high-pressure moments.", "attackBonusPercent": 0.10, "defenseBonusPercent": 0.00, "controlBonusPercent": 0.02, "preferredTacticIds": [ "counter" ] },
+    { "id": "legend_finish", "displayName": "Legend Finish", "description": "Elite final-third execution.", "attackBonusPercent": 0.12, "defenseBonusPercent": 0.00, "controlBonusPercent": 0.03, "preferredTacticIds": [ "counter", "balance" ] },
+    { "id": "sweeper", "displayName": "Sweeper", "description": "Helps circulation from the back.", "attackBonusPercent": 0.00, "defenseBonusPercent": 0.06, "controlBonusPercent": 0.04, "preferredTacticIds": [ "possession" ] },
+    { "id": "intercept", "displayName": "Intercept", "description": "Cuts out dangerous passes.", "attackBonusPercent": 0.00, "defenseBonusPercent": 0.08, "controlBonusPercent": 0.01, "preferredTacticIds": [ "balance" ] },
+    { "id": "carry", "displayName": "Carry", "description": "Breaks lines with the ball.", "attackBonusPercent": 0.03, "defenseBonusPercent": 0.00, "controlBonusPercent": 0.05, "preferredTacticIds": [ "possession", "counter" ] }
+  ]
+}

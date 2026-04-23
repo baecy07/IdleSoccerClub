@@ -1,18 +1,18 @@
 {
   "idleBalance": {
     "baseGoldPerMinute": 18,
-    "basePlayerExpPerMinute": 9,
     "powerToGoldFactor": 0.03,
+    "basePlayerExpPerMinute": 9,
     "powerToPlayerExpFactor": 0.015,
     "stagePowerToGoldFactor": 0.01,
     "stagePowerToPlayerExpFactor": 0.006,
-    "idleClaimCapMinutes": 120,
     "baseOfflineMaxMinutes": 480,
-    "scoutCurrencyEveryMinutes": 30,
-    "facilityMaterialEveryMinutes": 45,
     "gearMaterialEveryMinutes": 40,
     "premiumCurrencyEveryMinutes": 180,
-    "clubHouseOfflineMinutesPerLevel": 60
+    "clubHouseOfflineMinutesPerLevel": 60,
+    "idleClaimCapMinutes": 120,
+    "scoutCurrencyEveryMinutes": 30,
+    "facilityMaterialEveryMinutes": 45
   },
   "playerLevelCosts": [
     { "level": 1, "goldCost": 60, "playerExpCost": 20 },
@@ -42,46 +42,5 @@
     { "currentStar": 3, "requiredDuplicates": 3, "goldCost": 460 },
     { "currentStar": 4, "requiredDuplicates": 4, "goldCost": 700 }
   ],
-  "facilities": [
-    {
-      "facilityId": "training_ground",
-      "levels": [
-        { "level": 1, "upgradeCost": 0, "primaryValue": 10, "secondaryValue": 0 },
-        { "level": 2, "upgradeCost": 30, "primaryValue": 15, "secondaryValue": 0 },
-        { "level": 3, "upgradeCost": 55, "primaryValue": 20, "secondaryValue": 0 },
-        { "level": 4, "upgradeCost": 85, "primaryValue": 25, "secondaryValue": 0 },
-        { "level": 5, "upgradeCost": 125, "primaryValue": 30, "secondaryValue": 0 }
-      ]
-    },
-    {
-      "facilityId": "scout_center",
-      "levels": [
-        { "level": 1, "upgradeCost": 0, "primaryValue": 3, "secondaryValue": 0 },
-        { "level": 2, "upgradeCost": 35, "primaryValue": 3, "secondaryValue": 0 },
-        { "level": 3, "upgradeCost": 65, "primaryValue": 4, "secondaryValue": 0 },
-        { "level": 4, "upgradeCost": 95, "primaryValue": 4, "secondaryValue": 0 },
-        { "level": 5, "upgradeCost": 140, "primaryValue": 5, "secondaryValue": 0 }
-      ]
-    },
-    {
-      "facilityId": "club_house",
-      "levels": [
-        { "level": 1, "upgradeCost": 0, "primaryValue": 0.00, "secondaryValue": 480 },
-        { "level": 2, "upgradeCost": 28, "primaryValue": 0.08, "secondaryValue": 540 },
-        { "level": 3, "upgradeCost": 52, "primaryValue": 0.15, "secondaryValue": 600 },
-        { "level": 4, "upgradeCost": 78, "primaryValue": 0.24, "secondaryValue": 660 },
-        { "level": 5, "upgradeCost": 110, "primaryValue": 0.35, "secondaryValue": 720 }
-      ]
-    },
-    {
-      "facilityId": "tactic_lab",
-      "levels": [
-        { "level": 1, "upgradeCost": 0, "primaryValue": 1, "secondaryValue": 0 },
-        { "level": 2, "upgradeCost": 32, "primaryValue": 2, "secondaryValue": 0 },
-        { "level": 3, "upgradeCost": 58, "primaryValue": 2, "secondaryValue": 0 },
-        { "level": 4, "upgradeCost": 86, "primaryValue": 3, "secondaryValue": 0 },
-        { "level": 5, "upgradeCost": 120, "primaryValue": 3, "secondaryValue": 0 }
-      ]
-    }
-  ]
+  "facilities": []
 }

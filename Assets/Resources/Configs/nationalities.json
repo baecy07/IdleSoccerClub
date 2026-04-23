@@ -1,0 +1,12 @@
+{
+  "nationalities": [
+    { "id": "kr", "displayName": "Korea", "iconKey": "nation_kr" },
+    { "id": "jp", "displayName": "Japan", "iconKey": "nation_jp" },
+    { "id": "br", "displayName": "Brazil", "iconKey": "nation_br" },
+    { "id": "uk", "displayName": "England", "iconKey": "nation_uk" },
+    { "id": "es", "displayName": "Spain", "iconKey": "nation_es" },
+    { "id": "ar", "displayName": "Argentina", "iconKey": "nation_ar" },
+    { "id": "it", "displayName": "Italy", "iconKey": "nation_it" },
+    { "id": "de", "displayName": "Germany", "iconKey": "nation_de" }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "axes": [
+    {
+      "axisId": "club",
+      "tiers": [
+        { "requiredCount": 3, "bonusPercent": 0.05 },
+        { "requiredCount": 5, "bonusPercent": 0.10 },
+        { "requiredCount": 7, "bonusPercent": 0.15 }
+      ]
+    },
+    {
+      "axisId": "nation",
+      "tiers": [
+        { "requiredCount": 3, "bonusPercent": 0.04 },
+        { "requiredCount": 5, "bonusPercent": 0.08 },
+        { "requiredCount": 7, "bonusPercent": 0.12 }
+      ]
+    }
+  ]
+}

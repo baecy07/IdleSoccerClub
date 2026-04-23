@@ -15,46 +15,96 @@ namespace IdleSoccerClubMVP.Services.Local
     public sealed class LocalConfigProvider : IConfigProvider
     {
         private readonly Dictionary<string, PlayerDefinition> playerLookup = new Dictionary<string, PlayerDefinition>();
+        private readonly Dictionary<string, ClubDefinition> clubLookup = new Dictionary<string, ClubDefinition>();
+        private readonly Dictionary<string, NationalityDefinition> nationalityLookup = new Dictionary<string, NationalityDefinition>();
+        private readonly Dictionary<string, PassiveDefinition> passiveLookup = new Dictionary<string, PassiveDefinition>();
         private readonly Dictionary<string, LeagueDefinition> leagueLookup = new Dictionary<string, LeagueDefinition>();
+        private readonly Dictionary<string, LeagueStageDefinition> stageLookup = new Dictionary<string, LeagueStageDefinition>();
         private readonly Dictionary<string, FormationDefinition> formationLookup = new Dictionary<string, FormationDefinition>();
         private readonly Dictionary<string, TacticDefinition> tacticLookup = new Dictionary<string, TacticDefinition>();
         private readonly Dictionary<string, FacilityBalanceDefinition> facilityLookup = new Dictionary<string, FacilityBalanceDefinition>();
+        private readonly Dictionary<string, List<TeamColorTierDefinition>> teamColorLookup = new Dictionary<string, List<TeamColorTierDefinition>>();
 
         public LocalConfigProvider()
         {
             Players = Load<PlayersConfigRoot>("Configs/players");
+            Clubs = Load<ClubsConfigRoot>("Configs/clubs");
+            Nationalities = Load<NationalitiesConfigRoot>("Configs/nationalities");
+            Passives = Load<PassivesConfigRoot>("Configs/passives");
+            Formations = Load<FormationsConfigRoot>("Configs/formations");
+            Tactics = Load<TacticsConfigRoot>("Configs/tactics");
+            TeamColors = Load<TeamColorsConfigRoot>("Configs/teamcolors");
+            Facilities = Load<FacilitiesConfigRoot>("Configs/facilities");
             Leagues = Load<LeagueConfigRoot>("Configs/leagues");
             Scout = Load<ScoutConfigRoot>("Configs/scout");
             Progression = Load<ProgressionConfigRoot>("Configs/progression");
-            TeamPlay = Load<TeamPlayConfigRoot>("Configs/teamplay");
+            Progression.facilities = Facilities.facilities;
+            TeamPlay = new TeamPlayConfigRoot
+            {
+                formations = Formations.formations,
+                tactics = Tactics.tactics,
+                teamColors = BuildFlatTeamColorRules(TeamColors.axes)
+            };
 
             for (int index = 0; index < Players.players.Length; index++)
             {
                 playerLookup[Players.players[index].id] = Players.players[index];
             }
 
+            for (int index = 0; index < Clubs.clubs.Length; index++)
+            {
+                clubLookup[Clubs.clubs[index].id] = Clubs.clubs[index];
+            }
+
+            for (int index = 0; index < Nationalities.nationalities.Length; index++)
+            {
+                nationalityLookup[Nationalities.nationalities[index].id] = Nationalities.nationalities[index];
+            }
+
+            for (int index = 0; index < Passives.passives.Length; index++)
+            {
+                passiveLookup[Passives.passives[index].id] = Passives.passives[index];
+            }
+
             for (int index = 0; index < Leagues.leagues.Length; index++)
             {
                 leagueLookup[Leagues.leagues[index].id] = Leagues.leagues[index];
+                LeagueStageDefinition[] stages = Leagues.leagues[index].stages ?? Array.Empty<LeagueStageDefinition>();
+                for (int stageIndex = 0; stageIndex < stages.Length; stageIndex++)
+                {
+                    stageLookup[stages[stageIndex].id] = stages[stageIndex];
+                }
             }
 
-            for (int index = 0; index < TeamPlay.formations.Length; index++)
+            for (int index = 0; index < Formations.formations.Length; index++)
             {
-                formationLookup[TeamPlay.formations[index].id] = TeamPlay.formations[index];
+                formationLookup[Formations.formations[index].id] = Formations.formations[index];
             }
 
-            for (int index = 0; index < TeamPlay.tactics.Length; index++)
+            for (int index = 0; index < Tactics.tactics.Length; index++)
             {
-                tacticLookup[TeamPlay.tactics[index].id] = TeamPlay.tactics[index];
+                tacticLookup[Tactics.tactics[index].id] = Tactics.tactics[index];
             }
 
-            for (int index = 0; index < Progression.facilities.Length; index++)
+            for (int index = 0; index < Facilities.facilities.Length; index++)
             {
-                facilityLookup[Progression.facilities[index].facilityId] = Progression.facilities[index];
+                facilityLookup[Facilities.facilities[index].facilityId] = Facilities.facilities[index];
+            }
+
+            for (int index = 0; index < TeamColors.axes.Length; index++)
+            {
+                teamColorLookup[TeamColors.axes[index].axisId] = new List<TeamColorTierDefinition>(TeamColors.axes[index].tiers ?? Array.Empty<TeamColorTierDefinition>());
             }
         }
 
         public PlayersConfigRoot Players { get; private set; }
+        public ClubsConfigRoot Clubs { get; private set; }
+        public NationalitiesConfigRoot Nationalities { get; private set; }
+        public PassivesConfigRoot Passives { get; private set; }
+        public FormationsConfigRoot Formations { get; private set; }
+        public TacticsConfigRoot Tactics { get; private set; }
+        public TeamColorsConfigRoot TeamColors { get; private set; }
+        public FacilitiesConfigRoot Facilities { get; private set; }
         public LeagueConfigRoot Leagues { get; private set; }
         public ScoutConfigRoot Scout { get; private set; }
         public ProgressionConfigRoot Progression { get; private set; }
@@ -65,21 +115,46 @@ namespace IdleSoccerClubMVP.Services.Local
             return playerLookup.ContainsKey(id) ? playerLookup[id] : null;
         }
 
+        public ClubDefinition GetClub(string id)
+        {
+            return clubLookup.ContainsKey(id) ? clubLookup[id] : null;
+        }
+
+        public NationalityDefinition GetNationality(string id)
+        {
+            return nationalityLookup.ContainsKey(id) ? nationalityLookup[id] : null;
+        }
+
+        public PassiveDefinition GetPassive(string id)
+        {
+            return passiveLookup.ContainsKey(id) ? passiveLookup[id] : null;
+        }
+
         public LeagueDefinition GetLeague(string id)
         {
             return leagueLookup.ContainsKey(id) ? leagueLookup[id] : null;
         }
 
+        public LeagueStageDefinition GetStage(string id)
+        {
+            return stageLookup.ContainsKey(id) ? stageLookup[id] : null;
+        }
+
         public LeagueStageDefinition GetCurrentStage(GameState state)
         {
+            LeagueStageDefinition stage = GetStage(state.league.currentStageId);
+            if (stage != null)
+            {
+                return stage;
+            }
+
             LeagueDefinition league = GetLeague(state.league.currentLeagueId);
             if (league == null || league.stages == null || league.stages.Length == 0)
             {
                 return null;
             }
 
-            int safeIndex = Math.Max(0, Math.Min(league.stages.Length - 1, state.league.currentStageIndex));
-            return league.stages[safeIndex];
+            return league.stages[0];
         }
 
         public LeagueDefinition GetNextLeague(string currentLeagueId)
@@ -103,6 +178,11 @@ namespace IdleSoccerClubMVP.Services.Local
         public TacticDefinition GetTactic(string id)
         {
             return tacticLookup.ContainsKey(id) ? tacticLookup[id] : null;
+        }
+
+        public List<TeamColorTierDefinition> GetTeamColorRules(string axisId)
+        {
+            return teamColorLookup.ContainsKey(axisId) ? teamColorLookup[axisId] : new List<TeamColorTierDefinition>();
         }
 
         public FacilityBalanceDefinition GetFacility(string facilityId)
@@ -182,29 +262,59 @@ namespace IdleSoccerClubMVP.Services.Local
 
         public PlayerUnitData BuildPlayerUnitData(OwnedPlayerState ownedPlayer)
         {
-            PlayerDefinition definition = GetPlayerDefinition(ownedPlayer.definitionId);
+            PlayerDefinition definition = GetPlayerDefinition(ownedPlayer.playerId);
+            if (definition == null)
+            {
+                return null;
+            }
+
+            PassiveDefinition passive = GetPassive(definition.passiveId);
             PlayerUnitData data = new PlayerUnitData();
             data.id = definition.id;
             data.name = definition.displayName;
             data.rarity = definition.rarityId;
-            data.position = definition.positionId;
+            data.position = definition.mainPositionId;
             data.level = ownedPlayer.level;
             data.star = ownedPlayer.star;
-            data.club = definition.clubId;
+            data.club = definition.originalClubId;
             data.nationality = definition.nationalityId;
-            data.preferredFormation = definition.preferredFormationId;
+            data.preferredFormations = definition.preferredFormationIds != null
+                ? new List<string>(definition.preferredFormationIds)
+                : new List<string>();
             data.preferredRole = definition.preferredRoleId;
-            data.duplicateShardCount = ownedPlayer.duplicateShardCount;
-            data.baseStats.attack = definition.attack;
-            data.baseStats.defense = definition.defense;
-            data.baseStats.control = definition.control;
-            if (definition.traits != null)
+            data.passiveId = definition.passiveId;
+            data.passiveDisplayName = passive != null ? passive.displayName : definition.passiveId;
+            data.portraitKey = definition.portraitKey;
+            data.ownedCount = Math.Max(1, ownedPlayer.ownedCount);
+            data.duplicateShardCount = Math.Max(0, data.ownedCount - 1);
+            data.isLocked = ownedPlayer.lockState;
+            data.baseStats.attack = definition.baseAttack;
+            data.baseStats.defense = definition.baseDefense;
+            data.baseStats.pass = definition.basePass;
+            data.baseStats.stamina = definition.baseStamina;
+
+            data.computedPower = TeamPowerSystem.ComputePlayerPower(data, this);
+            return data;
+        }
+
+        private static TeamColorRuleDefinition[] BuildFlatTeamColorRules(TeamColorAxisDefinition[] axes)
+        {
+            List<TeamColorRuleDefinition> rules = new List<TeamColorRuleDefinition>();
+            for (int axisIndex = 0; axisIndex < axes.Length; axisIndex++)
             {
-                data.traits = new List<string>(definition.traits);
+                TeamColorTierDefinition[] tiers = axes[axisIndex].tiers ?? Array.Empty<TeamColorTierDefinition>();
+                for (int tierIndex = 0; tierIndex < tiers.Length; tierIndex++)
+                {
+                    rules.Add(new TeamColorRuleDefinition
+                    {
+                        axisId = axes[axisIndex].axisId,
+                        requiredCount = tiers[tierIndex].requiredCount,
+                        bonusPercent = tiers[tierIndex].bonusPercent
+                    });
+                }
             }
 
-            data.computedPower = TeamPowerSystem.ComputePlayerPower(data);
-            return data;
+            return rules.ToArray();
         }
 
         private static T Load<T>(string resourcePath)
@@ -477,7 +587,7 @@ namespace IdleSoccerClubMVP.Services.Local
 
         public bool SetSquadPlayer(SetSquadPlayerCommand command, out string message)
         {
-            OwnedPlayerState player = State.ownedPlayers.Find(item => item.instanceId == command.playerId);
+            OwnedPlayerState player = State.ownedPlayers.Find(item => item.playerId == command.playerId);
             if (player == null)
             {
                 message = "Selected player is not owned.";
@@ -554,18 +664,28 @@ namespace IdleSoccerClubMVP.Services.Local
             LeagueDefinition league = configProvider.GetLeague(State.league.currentLeagueId);
             LeagueStageDefinition stage = configProvider.GetCurrentStage(State);
             State.league.loopStateId = GameConstants.LoopStateWarmup;
+            if (league == null || league.stages == null || league.stages.Length == 0 || stage == null)
+            {
+                State.league.autoRunEnabled = false;
+                return;
+            }
+
+            int currentStageIndex = GetStageIndex(league, stage.id);
+            if (currentStageIndex < 0)
+            {
+                currentStageIndex = 0;
+            }
 
             if (result.isWin)
             {
                 ApplyReward(LeagueRewardSystem.BuildStageVictoryReward(stage));
 
                 State.league.lastClearedStageId = stage.id;
-                State.league.highestClearedStageIndex = Math.Max(State.league.highestClearedStageIndex, State.league.currentStageIndex);
 
-                if (State.league.currentStageIndex < league.stages.Length - 1)
+                if (currentStageIndex < league.stages.Length - 1)
                 {
-                    State.league.currentStageIndex += 1;
-                    State.league.currentWarmupStageId = league.stages[State.league.currentStageIndex].id;
+                    State.league.currentStageId = league.stages[currentStageIndex + 1].id;
+                    State.league.currentWarmupStageId = State.league.currentStageId;
                     if (State.league.autoRunEnabled)
                     {
                         StartLeagueRun(new StartLeagueRunCommand { autoContinue = true }, out _);
@@ -579,20 +699,17 @@ namespace IdleSoccerClubMVP.Services.Local
                     if (nextLeague != null)
                     {
                         State.league.currentLeagueId = nextLeague.id;
-                        State.league.currentStageIndex = 0;
-                        State.league.highestClearedStageIndex = -1;
+                        State.league.currentStageId = nextLeague.stages[0].id;
+                        State.league.lastClearedStageId = string.Empty;
                         State.league.currentWarmupStageId = nextLeague.stages[0].id;
                     }
                 }
             }
             else
             {
-                int fallbackIndex = Math.Max(0, State.league.highestClearedStageIndex);
-                State.league.currentStageIndex = fallbackIndex;
-                if (league.stages.Length > 0)
-                {
-                    State.league.currentWarmupStageId = league.stages[Math.Min(fallbackIndex, league.stages.Length - 1)].id;
-                }
+                string fallbackStageId = ResolveFallbackStageId(league, State.league.lastClearedStageId);
+                State.league.currentStageId = fallbackStageId;
+                State.league.currentWarmupStageId = fallbackStageId;
             }
 
             State.league.autoRunEnabled = false;
@@ -653,7 +770,7 @@ namespace IdleSoccerClubMVP.Services.Local
             state.team.selectedFormationId = "4-4-2";
             state.team.selectedTacticId = "balance";
             state.league.currentLeagueId = "league_09";
-            state.league.currentStageIndex = 0;
+            state.league.currentStageId = "league_09_stage_01";
             state.league.currentWarmupStageId = "league_09_stage_01";
 
             List<PlayerDefinition> starters = configProvider.GetStarterPlayers();
@@ -661,11 +778,10 @@ namespace IdleSoccerClubMVP.Services.Local
             {
                 state.ownedPlayers.Add(new OwnedPlayerState
                 {
-                    instanceId = starters[index].id,
-                    definitionId = starters[index].id,
+                    playerId = starters[index].id,
+                    ownedCount = 1,
                     level = 1,
-                    star = 1,
-                    duplicateShardCount = 0
+                    star = 1
                 });
             }
 
@@ -685,6 +801,45 @@ namespace IdleSoccerClubMVP.Services.Local
         private static List<string> BuildSlotBlueprint(string formationId)
         {
             return FormationSlotUtility.BuildSlotBlueprint(formationId);
+        }
+
+        private static int GetStageIndex(LeagueDefinition league, string stageId)
+        {
+            if (league == null || league.stages == null)
+            {
+                return -1;
+            }
+
+            for (int index = 0; index < league.stages.Length; index++)
+            {
+                if (league.stages[index].id == stageId)
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
+
+        private static string ResolveFallbackStageId(LeagueDefinition league, string lastClearedStageId)
+        {
+            if (league == null || league.stages == null || league.stages.Length == 0)
+            {
+                return string.Empty;
+            }
+
+            if (string.IsNullOrEmpty(lastClearedStageId))
+            {
+                return league.stages[0].id;
+            }
+
+            int clearedIndex = GetStageIndex(league, lastClearedStageId);
+            if (clearedIndex < 0)
+            {
+                return league.stages[0].id;
+            }
+
+            return league.stages[Math.Min(clearedIndex, league.stages.Length - 1)].id;
         }
     }
 

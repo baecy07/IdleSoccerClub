@@ -3,49 +3,34 @@
     {
       "id": "league_09",
       "displayName": "League 9",
-      "promotionRewardGold": 400,
-      "promotionRewardPlayerExp": 180,
-      "promotionRewardGearMaterial": 8,
-      "promotionRewardFacilityMaterial": 36,
-      "promotionRewardScoutCurrency": 5,
-      "promotionRewardPremiumCurrency": 1,
+      "promotionReward": { "gold": 400, "playerExp": 180, "gearMaterial": 8, "facilityMaterial": 36, "scoutCurrency": 5, "premiumCurrency": 1 },
       "stages": [
-        { "id": "league_09_stage_01", "displayName": "League 9 Round 1", "recommendedPower": 620, "rewardGold": 220, "rewardPlayerExp": 90, "rewardGearMaterial": 4, "rewardFacilityMaterial": 18, "rewardScoutCurrency": 2, "rewardPremiumCurrency": 0, "opponentAttack": 255, "opponentDefense": 225, "opponentControl": 160, "opponentPower": 625 },
-        { "id": "league_09_stage_02", "displayName": "League 9 Round 2", "recommendedPower": 700, "rewardGold": 240, "rewardPlayerExp": 100, "rewardGearMaterial": 4, "rewardFacilityMaterial": 20, "rewardScoutCurrency": 2, "rewardPremiumCurrency": 0, "opponentAttack": 290, "opponentDefense": 250, "opponentControl": 175, "opponentPower": 705 },
-        { "id": "league_09_stage_03", "displayName": "League 9 Round 3", "recommendedPower": 770, "rewardGold": 260, "rewardPlayerExp": 114, "rewardGearMaterial": 5, "rewardFacilityMaterial": 22, "rewardScoutCurrency": 3, "rewardPremiumCurrency": 0, "opponentAttack": 320, "opponentDefense": 276, "opponentControl": 192, "opponentPower": 778 },
-        { "id": "league_09_stage_04", "displayName": "League 9 Playoff", "recommendedPower": 850, "rewardGold": 320, "rewardPlayerExp": 132, "rewardGearMaterial": 6, "rewardFacilityMaterial": 28, "rewardScoutCurrency": 4, "rewardPremiumCurrency": 1, "opponentAttack": 350, "opponentDefense": 305, "opponentControl": 212, "opponentPower": 860 }
+        { "id": "league_09_stage_01", "leagueId": "league_09", "stageOrder": 1, "displayName": "League 9 Round 1", "recommendedPower": 620, "victoryReward": { "gold": 220, "playerExp": 90, "gearMaterial": 4, "facilityMaterial": 18, "scoutCurrency": 2, "premiumCurrency": 0 }, "opponentAttack": 255, "opponentDefense": 225, "opponentControl": 160, "opponentPower": 625 },
+        { "id": "league_09_stage_02", "leagueId": "league_09", "stageOrder": 2, "displayName": "League 9 Round 2", "recommendedPower": 700, "victoryReward": { "gold": 240, "playerExp": 100, "gearMaterial": 4, "facilityMaterial": 20, "scoutCurrency": 2, "premiumCurrency": 0 }, "opponentAttack": 290, "opponentDefense": 250, "opponentControl": 175, "opponentPower": 705 },
+        { "id": "league_09_stage_03", "leagueId": "league_09", "stageOrder": 3, "displayName": "League 9 Round 3", "recommendedPower": 770, "victoryReward": { "gold": 260, "playerExp": 114, "gearMaterial": 5, "facilityMaterial": 22, "scoutCurrency": 3, "premiumCurrency": 0 }, "opponentAttack": 320, "opponentDefense": 276, "opponentControl": 192, "opponentPower": 778 },
+        { "id": "league_09_stage_04", "leagueId": "league_09", "stageOrder": 4, "displayName": "League 9 Playoff", "recommendedPower": 850, "victoryReward": { "gold": 320, "playerExp": 132, "gearMaterial": 6, "facilityMaterial": 28, "scoutCurrency": 4, "premiumCurrency": 1 }, "opponentAttack": 350, "opponentDefense": 305, "opponentControl": 212, "opponentPower": 860 }
       ]
     },
     {
       "id": "league_08",
       "displayName": "League 8",
-      "promotionRewardGold": 560,
-      "promotionRewardPlayerExp": 240,
-      "promotionRewardGearMaterial": 11,
-      "promotionRewardFacilityMaterial": 48,
-      "promotionRewardScoutCurrency": 6,
-      "promotionRewardPremiumCurrency": 1,
+      "promotionReward": { "gold": 560, "playerExp": 240, "gearMaterial": 11, "facilityMaterial": 48, "scoutCurrency": 6, "premiumCurrency": 1 },
       "stages": [
-        { "id": "league_08_stage_01", "displayName": "League 8 Round 1", "recommendedPower": 930, "rewardGold": 360, "rewardPlayerExp": 150, "rewardGearMaterial": 6, "rewardFacilityMaterial": 30, "rewardScoutCurrency": 4, "rewardPremiumCurrency": 0, "opponentAttack": 390, "opponentDefense": 332, "opponentControl": 230, "opponentPower": 936 },
-        { "id": "league_08_stage_02", "displayName": "League 8 Round 2", "recommendedPower": 1020, "rewardGold": 390, "rewardPlayerExp": 164, "rewardGearMaterial": 7, "rewardFacilityMaterial": 34, "rewardScoutCurrency": 5, "rewardPremiumCurrency": 0, "opponentAttack": 425, "opponentDefense": 365, "opponentControl": 252, "opponentPower": 1028 },
-        { "id": "league_08_stage_03", "displayName": "League 8 Round 3", "recommendedPower": 1120, "rewardGold": 420, "rewardPlayerExp": 182, "rewardGearMaterial": 8, "rewardFacilityMaterial": 38, "rewardScoutCurrency": 5, "rewardPremiumCurrency": 0, "opponentAttack": 465, "opponentDefense": 398, "opponentControl": 278, "opponentPower": 1130 },
-        { "id": "league_08_stage_04", "displayName": "League 8 Playoff", "recommendedPower": 1230, "rewardGold": 480, "rewardPlayerExp": 205, "rewardGearMaterial": 9, "rewardFacilityMaterial": 44, "rewardScoutCurrency": 6, "rewardPremiumCurrency": 1, "opponentAttack": 508, "opponentDefense": 438, "opponentControl": 305, "opponentPower": 1242 }
+        { "id": "league_08_stage_01", "leagueId": "league_08", "stageOrder": 1, "displayName": "League 8 Round 1", "recommendedPower": 930, "victoryReward": { "gold": 360, "playerExp": 150, "gearMaterial": 6, "facilityMaterial": 30, "scoutCurrency": 4, "premiumCurrency": 0 }, "opponentAttack": 390, "opponentDefense": 332, "opponentControl": 230, "opponentPower": 936 },
+        { "id": "league_08_stage_02", "leagueId": "league_08", "stageOrder": 2, "displayName": "League 8 Round 2", "recommendedPower": 1020, "victoryReward": { "gold": 390, "playerExp": 164, "gearMaterial": 7, "facilityMaterial": 34, "scoutCurrency": 5, "premiumCurrency": 0 }, "opponentAttack": 425, "opponentDefense": 365, "opponentControl": 252, "opponentPower": 1028 },
+        { "id": "league_08_stage_03", "leagueId": "league_08", "stageOrder": 3, "displayName": "League 8 Round 3", "recommendedPower": 1120, "victoryReward": { "gold": 420, "playerExp": 182, "gearMaterial": 8, "facilityMaterial": 38, "scoutCurrency": 5, "premiumCurrency": 0 }, "opponentAttack": 465, "opponentDefense": 398, "opponentControl": 278, "opponentPower": 1130 },
+        { "id": "league_08_stage_04", "leagueId": "league_08", "stageOrder": 4, "displayName": "League 8 Playoff", "recommendedPower": 1230, "victoryReward": { "gold": 480, "playerExp": 205, "gearMaterial": 9, "facilityMaterial": 44, "scoutCurrency": 6, "premiumCurrency": 1 }, "opponentAttack": 508, "opponentDefense": 438, "opponentControl": 305, "opponentPower": 1242 }
       ]
     },
     {
       "id": "league_07",
       "displayName": "League 7",
-      "promotionRewardGold": 760,
-      "promotionRewardPlayerExp": 320,
-      "promotionRewardGearMaterial": 14,
-      "promotionRewardFacilityMaterial": 60,
-      "promotionRewardScoutCurrency": 8,
-      "promotionRewardPremiumCurrency": 2,
+      "promotionReward": { "gold": 760, "playerExp": 320, "gearMaterial": 14, "facilityMaterial": 60, "scoutCurrency": 8, "premiumCurrency": 2 },
       "stages": [
-        { "id": "league_07_stage_01", "displayName": "League 7 Round 1", "recommendedPower": 1340, "rewardGold": 520, "rewardPlayerExp": 228, "rewardGearMaterial": 9, "rewardFacilityMaterial": 48, "rewardScoutCurrency": 6, "rewardPremiumCurrency": 0, "opponentAttack": 555, "opponentDefense": 472, "opponentControl": 332, "opponentPower": 1352 },
-        { "id": "league_07_stage_02", "displayName": "League 7 Round 2", "recommendedPower": 1460, "rewardGold": 570, "rewardPlayerExp": 248, "rewardGearMaterial": 10, "rewardFacilityMaterial": 52, "rewardScoutCurrency": 7, "rewardPremiumCurrency": 0, "opponentAttack": 604, "opponentDefense": 515, "opponentControl": 360, "opponentPower": 1475 },
-        { "id": "league_07_stage_03", "displayName": "League 7 Round 3", "recommendedPower": 1580, "rewardGold": 620, "rewardPlayerExp": 270, "rewardGearMaterial": 11, "rewardFacilityMaterial": 56, "rewardScoutCurrency": 7, "rewardPremiumCurrency": 1, "opponentAttack": 652, "opponentDefense": 560, "opponentControl": 390, "opponentPower": 1596 },
-        { "id": "league_07_stage_04", "displayName": "League 7 Playoff", "recommendedPower": 1720, "rewardGold": 700, "rewardPlayerExp": 295, "rewardGearMaterial": 12, "rewardFacilityMaterial": 64, "rewardScoutCurrency": 8, "rewardPremiumCurrency": 1, "opponentAttack": 710, "opponentDefense": 610, "opponentControl": 425, "opponentPower": 1738 }
+        { "id": "league_07_stage_01", "leagueId": "league_07", "stageOrder": 1, "displayName": "League 7 Round 1", "recommendedPower": 1340, "victoryReward": { "gold": 520, "playerExp": 228, "gearMaterial": 9, "facilityMaterial": 48, "scoutCurrency": 6, "premiumCurrency": 0 }, "opponentAttack": 555, "opponentDefense": 472, "opponentControl": 332, "opponentPower": 1352 },
+        { "id": "league_07_stage_02", "leagueId": "league_07", "stageOrder": 2, "displayName": "League 7 Round 2", "recommendedPower": 1460, "victoryReward": { "gold": 570, "playerExp": 248, "gearMaterial": 10, "facilityMaterial": 52, "scoutCurrency": 7, "premiumCurrency": 0 }, "opponentAttack": 604, "opponentDefense": 515, "opponentControl": 360, "opponentPower": 1475 },
+        { "id": "league_07_stage_03", "leagueId": "league_07", "stageOrder": 3, "displayName": "League 7 Round 3", "recommendedPower": 1580, "victoryReward": { "gold": 620, "playerExp": 270, "gearMaterial": 11, "facilityMaterial": 56, "scoutCurrency": 7, "premiumCurrency": 1 }, "opponentAttack": 652, "opponentDefense": 560, "opponentControl": 390, "opponentPower": 1596 },
+        { "id": "league_07_stage_04", "leagueId": "league_07", "stageOrder": 4, "displayName": "League 7 Playoff", "recommendedPower": 1720, "victoryReward": { "gold": 700, "playerExp": 295, "gearMaterial": 12, "facilityMaterial": 64, "scoutCurrency": 8, "premiumCurrency": 1 }, "opponentAttack": 710, "opponentDefense": 610, "opponentControl": 425, "opponentPower": 1738 }
       ]
     }
   ]
